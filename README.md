@@ -1,15 +1,3 @@
-🔥 Perfect — now we upgrade it to **real enterprise / company-level documentation**.
-
-Below is your **production-ready README** with:
-
-✅ Professional layout
-✅ System sequence diagrams
-✅ API request/response examples
-✅ ER diagram
-✅ Docker Compose + Nginx deployment guide
-✅ Enterprise documentation structure
-
----
 
 # 🚀 MhlangaFin
 
