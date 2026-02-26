@@ -144,8 +144,8 @@ erDiagram
     }
 ```
 
-✔ Shows relationships clearly
-✔ Enterprise database modeling
+
+
 
 ---
 
