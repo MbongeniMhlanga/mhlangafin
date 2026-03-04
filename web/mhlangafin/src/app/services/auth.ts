@@ -11,7 +11,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   
-  private apiUrl = 'https://localhost:5001/api/auth'; // Replace with env variable in prod
+  private apiUrl = 'http://localhost:5075/api/Auth'; // Replace with env variable in prod
 
   // Use signal for auth state
   token = signal<string | null>(localStorage.getItem('token'));
