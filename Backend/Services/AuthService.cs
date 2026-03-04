@@ -24,8 +24,8 @@ public class AuthService : IAuthService
         var user = await _users.GetByEmailAsync(request.Email);
         if (user is null) return null;
 
-        // NOTE: replace with a proper password hash check in production
-        if (user.PasswordHash != request.Password) return null;
+        // Use BCrypt to verify the password against the stored hash
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)) return null;
 
         var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key missing"));
         var tokenHandler = new JwtSecurityTokenHandler();
