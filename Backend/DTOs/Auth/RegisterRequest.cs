@@ -5,8 +5,12 @@ namespace Backend.DTOs.Auth;
 public class RegisterRequest
 {
     [Required]
-    [StringLength(100, MinimumLength = 3)]
-    public string FullName { get; set; } = null!;
+    [StringLength(50, MinimumLength = 2)]
+    public string FirstName { get; set; } = null!;
+
+    [Required]
+    [StringLength(50, MinimumLength = 2)]
+    public string LastName { get; set; } = null!;
 
     [Required]
     [EmailAddress]

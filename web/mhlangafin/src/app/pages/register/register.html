@@ -15,27 +15,42 @@
             }
 
             <div class="rounded-md shadow-sm space-y-4">
-                <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
-                    <input id="fullName" type="text" autocomplete="name" required formControlName="fullName"
-                        class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+
+                <!-- Name row: First + Last side by side -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input id="firstName" type="text" autocomplete="given-name" required formControlName="firstName"
+                            placeholder="Jane"
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+                    </div>
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700">Surname</label>
+                        <input id="lastName" type="text" autocomplete="family-name" required formControlName="lastName"
+                            placeholder="Doe"
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+                    </div>
                 </div>
+
                 <div>
                     <label for="email-address" class="block text-sm font-medium text-gray-700">Email address</label>
                     <input id="email-address" type="email" autocomplete="email" required formControlName="email"
+                        placeholder="jane@example.com"
                         class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
                 </div>
+
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                     <input id="password" type="password" autocomplete="new-password" required formControlName="password"
+                        placeholder="Min. 6 characters"
                         class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
                 </div>
+
             </div>
 
             <div>
                 <button type="submit" [disabled]="registerForm.invalid || isLoading()"
                     class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300">
-
                     @if (isLoading()) {
                     <span>Creating account...</span>
                     } @else {

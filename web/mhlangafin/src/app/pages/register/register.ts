@@ -16,7 +16,8 @@ export class Register {
   private router = inject(Router);
 
   registerForm = this.fb.nonNullable.group({
-    fullName: ['', [Validators.required, Validators.minLength(3)]],
+    firstName: ['', [Validators.required, Validators.minLength(2)]],
+    lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
@@ -28,7 +29,7 @@ export class Register {
     if (this.registerForm.valid) {
       this.isLoading.set(true);
       this.errorMessage.set(null);
-      
+
       this.authService.register(this.registerForm.getRawValue()).subscribe({
         next: () => {
           this.isLoading.set(false);

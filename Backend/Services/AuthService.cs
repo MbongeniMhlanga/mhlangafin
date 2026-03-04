@@ -58,7 +58,8 @@ public class AuthService : IAuthService
 
         var user = new Backend.Models.Entities.User
         {
-            FullName = request.FullName,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
             Email = request.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = "User"
