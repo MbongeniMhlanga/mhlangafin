@@ -6,5 +6,6 @@ export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./pages/login/login').then(m => m.Login) },
   { path: 'register', loadComponent: () => import('./pages/register/register').then(m => m.Register) },
   { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard), canActivate: [authGuard] },
+  { path: 'transfer', loadComponent: () => import('./pages/transfer/transfer').then(m => m.Transfer), canActivate: [authGuard] },
   { path: '**', redirectTo: 'dashboard' }
 ];
