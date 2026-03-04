@@ -32,9 +32,23 @@ export class Dashboard implements OnInit {
     const token = this.authService.token();
     if (!token) return 0;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return parseInt(payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'], 10);
-    } catch {
+      // Decode the JWT payload using base64 decoding (handling URL-safe base64)
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      const payload = JSON.parse(jsonPayload);
+      
+      // JWT libraries map ClaimTypes in different ways (.NET typically uses generic 'nameid' or the full schema)
+      const userIdStr = payload['nameid'] 
+                     || payload['sub'] 
+                     || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+                     
+      return parseInt(userIdStr, 10);
+    } catch (e) {
+      console.error('Token parsing error:', e);
       return 0;
     }
   }
