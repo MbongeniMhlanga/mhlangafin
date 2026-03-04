@@ -1,3 +1,6 @@
+# Ignore Visual Studio state and build artifacts
 .vs/
 bin/
 obj/
+# user secrets, local settings
+appsettings.*.json
