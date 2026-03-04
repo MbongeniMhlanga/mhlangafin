@@ -10,7 +10,7 @@ import { of } from 'rxjs';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  
+
   private apiUrl = 'http://localhost:5075/api/Auth'; // Replace with env variable in prod
 
   // Use signal for auth state

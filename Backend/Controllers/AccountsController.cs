@@ -21,6 +21,18 @@ public class AccountsController : ControllerBase
         return Ok(acc);
     }
 
+    [HttpGet("my")]
+    [Authorize]
+    public async Task<IActionResult> GetMyAccounts()
+    {
+        var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdString, out var userId))
+            return Unauthorized();
+
+        var accounts = await _accounts.GetByUserIdAsync(userId);
+        return Ok(accounts);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> Create([FromBody] AccountCreateDto dto)

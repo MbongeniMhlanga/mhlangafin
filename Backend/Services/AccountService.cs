@@ -1,6 +1,8 @@
 using Backend.DTOs.Accounts;
 using Backend.Models.Entities;
 using Backend.Repositories;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Backend.Services;
 
@@ -26,6 +28,18 @@ public class AccountService : IAccountService
             Balance = acc.Balance,
             Status = acc.Status
         };
+    }
+
+    public async Task<IEnumerable<AccountDto>> GetByUserIdAsync(int userId)
+    {
+        var accounts = await _accounts.GetByUserIdAsync(userId);
+        return accounts.Select(a => new AccountDto
+        {
+            Id = a.Id,
+            AccountNumber = a.AccountNumber,
+            Balance = a.Balance,
+            Status = a.Status
+        });
     }
 
     public async Task<AccountDto> CreateAsync(AccountCreateDto dto)
