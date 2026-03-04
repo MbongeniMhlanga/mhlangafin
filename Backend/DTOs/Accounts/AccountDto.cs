@@ -3,6 +3,7 @@ namespace Backend.DTOs.Accounts;
 public class AccountDto
 {
     public int Id { get; set; }
+    public string AccountName { get; set; } = null!;
     public string AccountNumber { get; set; } = null!;
     public decimal Balance { get; set; }
     public string Status { get; set; } = null!;

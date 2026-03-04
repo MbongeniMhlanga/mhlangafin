@@ -24,15 +24,21 @@ public class TransactionService : ITransactionService
         if (request.Amount <= 0)
             return new TransferResponse { Status = "Failed", Message = "Invalid amount" };
 
+        if (request.FromAccountNumber == request.ToAccountNumber)
+            return new TransferResponse { Status = "Failed", Message = "Cannot transfer to the same account" };
+
         // Use a DB transaction to ensure atomicity
         await using var tx = await _db.Database.BeginTransactionAsync();
         try
         {
-            var from = await _db.Accounts.FirstOrDefaultAsync(a => a.Id == request.FromAccountId);
-            var to = await _db.Accounts.FirstOrDefaultAsync(a => a.Id == request.ToAccountId);
+            var from = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == request.FromAccountNumber);
+            var to = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == request.ToAccountNumber);
 
-            if (from is null || to is null)
-                return new TransferResponse { Status = "Failed", Message = "Account not found" };
+            if (from is null)
+                return new TransferResponse { Status = "Failed", Message = $"Source account '{request.FromAccountNumber}' not found" };
+
+            if (to is null)
+                return new TransferResponse { Status = "Failed", Message = $"Destination account '{request.ToAccountNumber}' not found" };
 
             if (from.Balance < request.Amount)
                 return new TransferResponse { Status = "Failed", Message = "Insufficient funds" };

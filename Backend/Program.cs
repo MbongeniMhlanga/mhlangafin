@@ -98,6 +98,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    // In development: drop + recreate so schema changes always apply.
+    // ⚠️  Switch to EF Migrations before going to production.
+    db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
 }
 

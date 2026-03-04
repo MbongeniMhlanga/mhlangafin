@@ -21,10 +21,9 @@ export class Dashboard implements OnInit {
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
 
-  // Quick form for creating an account (hardcode initial balances to 0 or allow input)
   createAccountForm = this.fb.nonNullable.group({
-    accountNumber: ['', [Validators.required, Validators.minLength(5)]],
-    initialBalance: [0.01, [Validators.required, Validators.min(0.01)]] // Must be > 0.01 based on backend validation
+    accountName: ['', [Validators.required, Validators.minLength(2)]],
+    initialBalance: [0.01, [Validators.required, Validators.min(0.01)]]
   });
 
   // Since backend requires UserId for Create Account, we parse the JWT!
@@ -36,17 +35,17 @@ export class Dashboard implements OnInit {
       // Decode the JWT payload using base64 decoding (handling URL-safe base64)
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
 
       const payload = JSON.parse(jsonPayload);
-      
+
       // JWT libraries map ClaimTypes in different ways (.NET typically uses generic 'nameid' or the full schema)
-      const userIdStr = payload['nameid'] 
-                     || payload['sub'] 
-                     || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-                     
+      const userIdStr = payload['nameid']
+        || payload['sub']
+        || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
       return parseInt(userIdStr, 10);
     } catch (e) {
       console.error('Token parsing error:', e);
@@ -82,11 +81,11 @@ export class Dashboard implements OnInit {
 
       this.api.createAccount({
         userId: userId,
-        accountNumber: this.createAccountForm.getRawValue().accountNumber,
+        accountName: this.createAccountForm.getRawValue().accountName,
         initialBalance: this.createAccountForm.getRawValue().initialBalance
       }).subscribe({
         next: () => {
-          this.createAccountForm.reset({ accountNumber: '', initialBalance: 0.01 });
+          this.createAccountForm.reset({ accountName: '', initialBalance: 0.01 });
           this.fetchAccounts(); // refresh list
         },
         error: (err) => {

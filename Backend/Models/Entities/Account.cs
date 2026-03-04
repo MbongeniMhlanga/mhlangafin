@@ -8,6 +8,8 @@ public class Account
     [Key]
     public int Id { get; set; }
     [Required]
+    public string AccountName { get; set; } = null!;
+    [Required]
     public string AccountNumber { get; set; } = null!;
     [Column(TypeName = "decimal(18,2)")]
     public decimal Balance { get; set; }

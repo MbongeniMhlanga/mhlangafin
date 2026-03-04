@@ -21,33 +21,26 @@ public class AccountService : IAccountService
     {
         var acc = await _accounts.GetByIdAsync(id);
         if (acc is null) return null;
-        return new AccountDto
-        {
-            Id = acc.Id,
-            AccountNumber = acc.AccountNumber,
-            Balance = acc.Balance,
-            Status = acc.Status
-        };
+        return MapToDto(acc);
     }
 
     public async Task<IEnumerable<AccountDto>> GetByUserIdAsync(int userId)
     {
         var accounts = await _accounts.GetByUserIdAsync(userId);
-        return accounts.Select(a => new AccountDto
-        {
-            Id = a.Id,
-            AccountNumber = a.AccountNumber,
-            Balance = a.Balance,
-            Status = a.Status
-        });
+        return accounts.Select(MapToDto);
     }
 
     public async Task<AccountDto> CreateAsync(AccountCreateDto dto)
     {
         var user = await _users.GetByIdAsync(dto.UserId) ?? throw new InvalidOperationException("User not found");
+
+        // Auto-generate a unique account number: MFN-YearMonth-RandomSuffix
+        var accountNumber = $"MFN{DateTime.UtcNow:yyyyMM}{Random.Shared.Next(10000, 99999)}";
+
         var account = new Account
         {
-            AccountNumber = dto.AccountNumber,
+            AccountName = dto.AccountName,
+            AccountNumber = accountNumber,
             Balance = dto.InitialBalance,
             UserId = user.Id,
             Status = "Active"
@@ -55,12 +48,15 @@ public class AccountService : IAccountService
         await _accounts.AddAsync(account);
         await _accounts.SaveChangesAsync();
 
-        return new AccountDto
-        {
-            Id = account.Id,
-            AccountNumber = account.AccountNumber,
-            Balance = account.Balance,
-            Status = account.Status
-        };
+        return MapToDto(account);
     }
+
+    private static AccountDto MapToDto(Account a) => new AccountDto
+    {
+        Id = a.Id,
+        AccountName = a.AccountName,
+        AccountNumber = a.AccountNumber,
+        Balance = a.Balance,
+        Status = a.Status
+    };
 }

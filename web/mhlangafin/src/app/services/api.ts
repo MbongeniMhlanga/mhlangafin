@@ -14,12 +14,11 @@ export class Api {
     return this.http.get<any[]>(`${this.apiUrl}/Accounts/my`);
   }
 
-  createAccount(payload: { userId: number, accountNumber: string, initialBalance: number }): Observable<any> {
+  createAccount(payload: { userId: number, accountName: string, initialBalance: number }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Accounts`, payload);
   }
 
-  // Transactions (Wait, the backend doesn't have a GetMyTransactions endpoint, so we'll just implement Transfer)
-  transfer(payload: { fromAccountId: number, toAccountId: number, amount: number }): Observable<any> {
+  transfer(payload: { fromAccountNumber: string, toAccountNumber: string, amount: number }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Transactions/transfer`, payload);
   }
 }

@@ -8,8 +8,8 @@ public class AccountCreateDto
     public int UserId { get; set; }
 
     [Required]
-    [StringLength(20, MinimumLength = 5)]
-    public string AccountNumber { get; set; } = null!;
+    [StringLength(50, MinimumLength = 2, ErrorMessage = "Account name must be between 2 and 50 characters.")]
+    public string AccountName { get; set; } = null!;
 
     [Range(0.01, double.MaxValue, ErrorMessage = "Initial balance must be greater than 0")]
     public decimal InitialBalance { get; set; }
