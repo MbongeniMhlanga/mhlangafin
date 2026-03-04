@@ -50,4 +50,22 @@ public class AuthService : IAuthService
             ExpiresAt = tokenDescriptor.Expires!.Value
         };
     }
+
+    public async Task<bool> RegisterAsync(RegisterRequest request)
+    {
+        var existingUser = await _users.GetByEmailAsync(request.Email);
+        if (existingUser is not null) return false;
+
+        var user = new Backend.Models.Entities.User
+        {
+            FullName = request.FullName,
+            Email = request.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = "User"
+        };
+
+        await _users.AddAsync(user);
+        await _users.SaveChangesAsync();
+        return true;
+    }
 }
