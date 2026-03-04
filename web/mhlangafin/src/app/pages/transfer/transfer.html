@@ -48,11 +48,7 @@
             <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
                 <h2 class="text-lg font-bold text-gray-800 mb-6">New Transfer</h2>
 
-                @if (successMessage()) {
-                <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded">
-                    <p class="text-sm text-green-800 font-medium">{{ successMessage() }}</p>
-                </div>
-                }
+
 
                 @if (errorMessage()) {
                 <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
@@ -130,3 +126,8 @@
         </div>
     </main>
 </div>
+
+<!-- Professional Success Modal -->
+<app-success-modal [visible]="showModal()" [transactionId]="transactionId()" [amount]="lastAmount()"
+    [toAccount]="lastToAccount()" (close)="onModalClose()" (newTransfer)="onNewTransfer()">
+</app-success-modal>

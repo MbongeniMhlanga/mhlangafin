@@ -3,40 +3,41 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Api } from '../../services/api';
+import { SuccessModal } from '../../shared/success-modal/success-modal';
 
 @Component({
   selector: 'app-transfer',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CommonModule],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule, SuccessModal],
   templateUrl: './transfer.html',
   styleUrls: ['./transfer.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Transfer implements OnInit {
-  private fb = inject(FormBuilder);
+  private fb  = inject(FormBuilder);
   private api = inject(Api);
 
-  accounts = signal<any[]>([]);
-  isLoading = signal(false);
+  accounts          = signal<any[]>([]);
+  isLoading         = signal(false);
   isLoadingAccounts = signal(true);
-  successMessage = signal<string | null>(null);
-  errorMessage = signal<string | null>(null);
+  errorMessage      = signal<string | null>(null);
+
+  // Modal state
+  showModal     = signal(false);
+  transactionId = signal<number | null>(null);
+  lastAmount    = signal<number>(0);
+  lastToAccount = signal<string>('');
 
   transferForm = this.fb.nonNullable.group({
     fromAccountNumber: ['', [Validators.required]],
-    toAccountNumber: ['', [Validators.required]],
-    amount: [0, [Validators.required, Validators.min(0.01)]]
+    toAccountNumber:   ['', [Validators.required]],
+    amount:            [0,  [Validators.required, Validators.min(0.01)]]
   });
 
   ngOnInit() {
     this.api.getMyAccounts().subscribe({
-      next: (data) => {
-        this.accounts.set(data);
-        this.isLoadingAccounts.set(false);
-      },
-      error: () => {
-        this.isLoadingAccounts.set(false);
-      }
+      next:  (data) => { this.accounts.set(data); this.isLoadingAccounts.set(false); },
+      error: ()     => { this.isLoadingAccounts.set(false); }
     });
   }
 
@@ -52,24 +53,36 @@ export class Transfer implements OnInit {
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.successMessage.set(null);
 
-    this.api.transfer({
-      fromAccountNumber,
-      toAccountNumber,
-      amount: Number(amount)
-    }).subscribe({
+    this.api.transfer({ fromAccountNumber, toAccountNumber, amount: Number(amount) }).subscribe({
       next: (res) => {
         this.isLoading.set(false);
-        this.successMessage.set(`✅ Transfer successful! Transaction ID: #${res.transactionId}`);
-        this.transferForm.reset({ fromAccountNumber: '', toAccountNumber: '', amount: 0 });
-        // Refresh balances
+
+        // Store details for the modal
+        this.transactionId.set(res.transactionId);
+        this.lastAmount.set(Number(amount));
+        this.lastToAccount.set(toAccountNumber);
+
+        // Show modal and refresh balances
+        this.showModal.set(true);
         this.api.getMyAccounts().subscribe(data => this.accounts.set(data));
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err?.error?.message || err?.error?.Message || 'Transfer failed. Please try again.');
+        this.errorMessage.set(
+          err?.error?.message || err?.error?.Message || 'Transfer failed. Please try again.'
+        );
       }
     });
+  }
+
+  onModalClose() {
+    this.showModal.set(false);
+    this.transferForm.reset({ fromAccountNumber: '', toAccountNumber: '', amount: 0 });
+  }
+
+  onNewTransfer() {
+    this.showModal.set(false);
+    this.transferForm.reset({ fromAccountNumber: '', toAccountNumber: '', amount: 0 });
   }
 }
