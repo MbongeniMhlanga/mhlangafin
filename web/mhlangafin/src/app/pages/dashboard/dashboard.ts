@@ -98,4 +98,11 @@ export class Dashboard implements OnInit {
   logout() {
     this.authService.logout();
   }
+
+  scrollToForm() {
+    const element = document.getElementById('openAccountSection');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 }
