@@ -26,6 +26,20 @@ export class Dashboard implements OnInit {
     initialBalance: [0.01, [Validators.required, Validators.min(0.01)]]
   });
 
+  // Transaction History State
+  selectedAccount = signal<any>(null);
+  transactionHistory = signal<any>(null);
+  isHistoryLoading = signal<boolean>(false);
+  historyError = signal<string | null>(null);
+
+  // Statement State
+  statementForm = this.fb.nonNullable.group({
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required]
+  });
+  isStatementLoading = signal<boolean>(false);
+  statementError = signal<string | null>(null);
+
   // Since backend requires UserId for Create Account, we parse the JWT!
   // It's technically better to read it on the server, but doing it fast here:
   private getUserIdFromToken(): number {
@@ -104,5 +118,77 @@ export class Dashboard implements OnInit {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  }
+
+  // Transaction History Methods
+  viewTransactionHistory(account: any) {
+    this.selectedAccount.set(account);
+    this.transactionHistory.set(null);
+    this.historyError.set(null);
+    this.isHistoryLoading.set(true);
+
+    this.api.getTransactionHistory(account.accountNumber).subscribe({
+      next: (data) => {
+        this.transactionHistory.set(data);
+        this.isHistoryLoading.set(false);
+      },
+      error: (err) => {
+        this.historyError.set('Failed to load transaction history.');
+        this.isHistoryLoading.set(false);
+      }
+    });
+  }
+
+  closeTransactionHistory() {
+    this.selectedAccount.set(null);
+    this.transactionHistory.set(null);
+    this.historyError.set(null);
+  }
+
+  // Statement Methods
+  downloadStatement() {
+    if (this.statementForm.valid && this.selectedAccount()) {
+      const startDate = new Date(this.statementForm.getRawValue().startDate);
+      const endDate = new Date(this.statementForm.getRawValue().endDate);
+
+      if (startDate > endDate) {
+        this.statementError.set('Start date must be before end date.');
+        return;
+      }
+
+      this.isStatementLoading.set(true);
+      this.statementError.set(null);
+
+      this.api.downloadStatement(
+        this.selectedAccount().accountNumber,
+        startDate,
+        endDate,
+        'PDF'
+      ).subscribe({
+        next: (blob) => {
+          // Create download link for text file
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          const fileName = `statement_${this.selectedAccount().accountNumber}_${startDate.toISOString().split('T')[0]}_to_${endDate.toISOString().split('T')[0]}.txt`;
+          link.download = fileName;
+          link.click();
+          
+          // Clean up
+          window.URL.revokeObjectURL(downloadUrl);
+          this.isStatementLoading.set(false);
+        },
+        error: (err) => {
+          this.statementError.set('Failed to download statement.');
+          this.isStatementLoading.set(false);
+        }
+      });
+    }
+  }
+
+  closeStatementModal() {
+    this.selectedAccount.set(null);
+    this.statementForm.reset();
+    this.statementError.set(null);
   }
 }

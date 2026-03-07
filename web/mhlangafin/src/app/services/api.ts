@@ -21,4 +21,32 @@ export class Api {
   transfer(payload: { fromAccountNumber: string, toAccountNumber: string, amount: number }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Transactions/transfer`, payload);
   }
+
+  // Transaction History
+  getTransactionHistory(accountNumber: string, startDate?: Date, endDate?: Date, page: number = 1, pageSize: number = 20): Observable<any> {
+    const params: any = { accountNumber, page, pageSize };
+    if (startDate) params.startDate = startDate.toISOString();
+    if (endDate) params.endDate = endDate.toISOString();
+    return this.http.get<any>(`${this.apiUrl}/Transactions/history`, { params });
+  }
+
+  // Statements
+  generateStatement(accountNumber: string, startDate: Date, endDate: Date): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Transactions/statement`, {
+      accountNumber,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    });
+  }
+
+  downloadStatement(accountNumber: string, startDate: Date, endDate: Date, format: string = 'PDF'): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/Transactions/statement/download`, {
+      accountNumber,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    }, {
+      params: { format },
+      responseType: 'blob'
+    });
+  }
 }
