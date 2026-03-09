@@ -18,6 +18,7 @@ public class TransactionDto
     public decimal Amount { get; set; }
     public string? FromAccountNumber { get; set; }
     public string? ToAccountNumber { get; set; }
+    public decimal BalanceAfter { get; set; }
     public string? Description { get; set; }
     public DateTime Timestamp { get; set; }
 }

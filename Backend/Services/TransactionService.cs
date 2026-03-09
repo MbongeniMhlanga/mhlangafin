@@ -103,8 +103,8 @@ public class TransactionService : ITransactionService
                 Id = t.Id,
                 Type = t.Type,
                 Amount = t.Amount,
-                FromAccountNumber = t.FromAccount.AccountNumber,
-                ToAccountNumber = t.ToAccount.AccountNumber,
+                FromAccountNumber = t.FromAccount!.AccountNumber,
+                ToAccountNumber = t.ToAccount!.AccountNumber,
                 Description = $"{t.Type} - {t.Amount:C}",
                 Timestamp = t.Timestamp
             })
@@ -144,8 +144,8 @@ public class TransactionService : ITransactionService
                 Id = t.Id,
                 Type = t.Type,
                 Amount = t.Amount,
-                FromAccountNumber = t.FromAccount.AccountNumber,
-                ToAccountNumber = t.ToAccount.AccountNumber,
+                FromAccountNumber = t.FromAccount!.AccountNumber,
+                ToAccountNumber = t.ToAccount!.AccountNumber,
                 Description = $"{t.Type} - {t.Amount:C}",
                 Timestamp = t.Timestamp
             })

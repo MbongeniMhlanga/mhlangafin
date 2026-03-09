@@ -47,6 +47,6 @@ export class Api {
     }, {
       params: { format },
       responseType: 'blob'
-    });
+    }) as Observable<Blob>;
   }
 }

@@ -122,6 +122,7 @@ export class Dashboard implements OnInit {
 
   // Transaction History Methods
   viewTransactionHistory(account: any) {
+    console.log('Viewing transaction history for:', account);
     this.selectedAccount.set(account);
     this.transactionHistory.set(null);
     this.historyError.set(null);
@@ -129,10 +130,12 @@ export class Dashboard implements OnInit {
 
     this.api.getTransactionHistory(account.accountNumber).subscribe({
       next: (data) => {
+        console.log('Transaction history loaded:', data);
         this.transactionHistory.set(data);
         this.isHistoryLoading.set(false);
       },
       error: (err) => {
+        console.error('Failed to load transaction history:', err);
         this.historyError.set('Failed to load transaction history.');
         this.isHistoryLoading.set(false);
       }
@@ -147,7 +150,9 @@ export class Dashboard implements OnInit {
 
   // Statement Methods
   downloadStatement() {
+    console.log('Download statement clicked');
     if (this.statementForm.valid && this.selectedAccount()) {
+      console.log('Form valid, proceeding with download');
       const startDate = new Date(this.statementForm.getRawValue().startDate);
       const endDate = new Date(this.statementForm.getRawValue().endDate);
 
@@ -159,6 +164,7 @@ export class Dashboard implements OnInit {
       this.isStatementLoading.set(true);
       this.statementError.set(null);
 
+      console.log('Calling API to download statement...');
       this.api.downloadStatement(
         this.selectedAccount().accountNumber,
         startDate,
@@ -166,11 +172,12 @@ export class Dashboard implements OnInit {
         'PDF'
       ).subscribe({
         next: (blob) => {
-          // Create download link for text file
+          console.log('Statement downloaded successfully:', blob);
+          // Create download link for PDF file
           const downloadUrl = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = downloadUrl;
-          const fileName = `statement_${this.selectedAccount().accountNumber}_${startDate.toISOString().split('T')[0]}_to_${endDate.toISOString().split('T')[0]}.txt`;
+          const fileName = `statement_${this.selectedAccount().accountNumber}_${startDate.toISOString().split('T')[0]}_to_${endDate.toISOString().split('T')[0]}.pdf`;
           link.download = fileName;
           link.click();
           
@@ -179,11 +186,22 @@ export class Dashboard implements OnInit {
           this.isStatementLoading.set(false);
         },
         error: (err) => {
+          console.error('Failed to download statement:', err);
           this.statementError.set('Failed to download statement.');
           this.isStatementLoading.set(false);
         }
       });
+    } else {
+      console.log('Form invalid or no account selected');
     }
+  }
+
+  // Method to open statement modal
+  openStatementModal(account: any) {
+    console.log('Opening statement modal for:', account);
+    this.selectedAccount.set(account);
+    this.statementForm.reset();
+    this.statementError.set(null);
   }
 
   closeStatementModal() {
