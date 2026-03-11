@@ -22,6 +22,23 @@ export class Api {
     return this.http.post<any>(`${this.apiUrl}/Transactions/transfer`, payload);
   }
 
+  internalTransfer(payload: { fromAccountId: number, toAccountId: number, amount: number }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Transactions/internal-transfer`, payload);
+  }
+
+  // Beneficiaries
+  getBeneficiaries(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/Beneficiaries`);
+  }
+
+  addBeneficiary(payload: { name: string, accountNumber: string, bankName?: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Beneficiaries`, payload);
+  }
+
+  deleteBeneficiary(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/Beneficiaries/${id}`);
+  }
+
   // Transaction History
   getTransactionHistory(accountNumber: string, startDate?: Date, endDate?: Date, page: number = 1, pageSize: number = 20): Observable<any> {
     const params: any = { accountNumber, page, pageSize };

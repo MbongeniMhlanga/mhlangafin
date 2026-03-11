@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { AuthService } from '../../services/auth';
 import { Api } from '../../services/api';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,6 +25,19 @@ export class Dashboard implements OnInit {
     accountName: ['', [Validators.required, Validators.minLength(2)]],
     initialBalance: [0.01, [Validators.required, Validators.min(0.01)]]
   });
+
+  internalTransferForm = this.fb.nonNullable.group({
+    fromAccountId: [0, [Validators.required]],
+    toAccountId: [0, [Validators.required]],
+    amount: [0.01, [Validators.required, Validators.min(0.01)]]
+  });
+
+  mainAccount = computed(() => this.accounts().find(a => a.isMain));
+  subAccounts = computed(() => this.accounts().filter(a => !a.isMain));
+
+  showInternalTransferModal = signal<boolean>(false);
+  isInternalTransferLoading = signal<boolean>(false);
+  internalTransferError = signal<string | null>(null);
 
   // Transaction History State
   selectedAccount = signal<any>(null);
@@ -208,5 +221,48 @@ export class Dashboard implements OnInit {
     this.selectedAccount.set(null);
     this.statementForm.reset();
     this.statementError.set(null);
+  }
+
+  // Internal Transfer Methods
+  openInternalTransferModal(fromAccount?: any) {
+    this.showInternalTransferModal.set(true);
+    this.internalTransferError.set(null);
+    this.internalTransferForm.reset({
+      fromAccountId: fromAccount?.id || 0,
+      toAccountId: 0,
+      amount: 0.01
+    });
+  }
+
+  closeInternalTransferModal() {
+    this.showInternalTransferModal.set(false);
+    this.internalTransferForm.reset();
+    this.internalTransferError.set(null);
+  }
+
+  executeInternalTransfer() {
+    if (this.internalTransferForm.valid) {
+      const { fromAccountId, toAccountId, amount } = this.internalTransferForm.getRawValue();
+      
+      if (fromAccountId === toAccountId) {
+        this.internalTransferError.set('Cannot transfer to the same account.');
+        return;
+      }
+
+      this.isInternalTransferLoading.set(true);
+      this.internalTransferError.set(null);
+
+      this.api.internalTransfer({ fromAccountId, toAccountId, amount }).subscribe({
+        next: () => {
+          this.isInternalTransferLoading.set(false);
+          this.closeInternalTransferModal();
+          this.fetchAccounts(); // Refresh
+        },
+        error: (err) => {
+          this.internalTransferError.set(err.error?.message || 'Transfer failed.');
+          this.isInternalTransferLoading.set(false);
+        }
+      });
+    }
   }
 }

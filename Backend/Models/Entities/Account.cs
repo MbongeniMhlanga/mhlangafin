@@ -14,6 +14,7 @@ public class Account
     [Column(TypeName = "decimal(18,2)")]
     public decimal Balance { get; set; }
     public int UserId { get; set; }
+    public bool IsMain { get; set; }
     public string Status { get; set; } = "Active";
 
     public User? User { get; set; }

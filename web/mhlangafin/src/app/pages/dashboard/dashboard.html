@@ -87,71 +87,111 @@
     </section>
 
     <!-- Accounts Portfolio Section -->
-    <section>
-      <div class="flex items-center justify-between mb-8">
-        <h3 class="text-3xl font-black text-slate-900 tracking-tight">Accounts Portfolio</h3>
-        <span class="px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">{{ accounts().length }}
-          Accounts Active</span>
+    <section class="space-y-12">
+      <!-- Main Account Hub -->
+      <div>
+        <div class="flex items-center justify-between mb-8">
+          <h3 class="text-2xl font-black text-slate-900 tracking-tight">Access Account</h3>
+          <span class="px-4 py-1.5 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Primary Hub</span>
+        </div>
+
+        @if (mainAccount()) {
+          <div class="bg-white border border-slate-200 rounded-[2.5rem] p-10 hover:shadow-2xl transition-all duration-500 relative overflow-hidden group">
+            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-slate-50 rounded-full group-hover:scale-110 transition-transform duration-700"></div>
+            
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div class="space-y-6">
+                <div>
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-2xl font-black text-slate-900">{{ mainAccount().accountName }}</h4>
+                      <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ mainAccount().accountNumber }}</p>
+                    </div>
+                  </div>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Available for Payments</p>
+                  <p class="text-5xl font-black text-slate-900">R{{ mainAccount().balance | number:'1.2-2' }}</p>
+                </div>
+                
+                <div class="flex gap-4">
+                  <button (click)="viewTransactionHistory(mainAccount())" class="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-slate-900/10">
+                    View Activity
+                  </button>
+                  <button (click)="openInternalTransferModal(mainAccount())" class="px-8 py-4 bg-slate-100 text-slate-900 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all active:scale-95">
+                    Move Money
+                  </button>
+                </div>
+              </div>
+
+              <div class="hidden lg:grid grid-cols-2 gap-4">
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Monthly Spend</p>
+                  <p class="text-xl font-black text-slate-900">R 0.00</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Rewards Points</p>
+                  <p class="text-xl font-black text-blue-600">Locked</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        @if (isLoading()) {
-        @for (i of [1,2,3]; track i) {
-        <div class="h-64 bg-slate-100 rounded-3xl animate-pulse"></div>
-        }
-        } @else if (accounts().length > 0) {
-        @for (acc of accounts(); track acc.id) {
-        <div
-          class="group bg-white border border-slate-200 rounded-[2rem] p-8 hover:border-slate-900 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
-          <!-- Decorative ring -->
-          <div
-            class="absolute -right-10 -bottom-10 w-40 h-40 border-[20px] border-slate-50 group-hover:border-blue-50 rounded-full transition-colors">
+      <!-- Savings Pockets (Sub-accounts) -->
+      <div>
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center gap-3">
+            <h3 class="text-2xl font-black text-slate-900 tracking-tight">Savings Pockets</h3>
+            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest">Growth Enabled</span>
           </div>
+          <button (click)="scrollToForm()" class="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2">
+            <span>Open New Pocket</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          </button>
+        </div>
 
-          <div class="relative z-10 flex flex-col h-full justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          @for (acc of subAccounts(); track acc.id) {
+            <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 hover:shadow-xl transition-all group relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <div class="relative z-10 flex flex-col h-full">
+                <div class="mb-8">
+                  <h4 class="text-lg font-black text-slate-900 uppercase tracking-tight">{{ acc.accountName }}</h4>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Savings Objective</p>
+                </div>
+
+                <div class="mt-auto">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Balance</p>
+                  <p class="text-3xl font-black text-slate-900 mb-6">R{{ acc.balance | number:'1.2-2' }}</p>
+                  
+                  <div class="flex gap-2">
+                    <button (click)="openInternalTransferModal(acc)" class="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all active:scale-95">
+                      Move Funds
+                    </button>
+                    <button (click)="viewTransactionHistory(acc)" class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center hover:bg-white hover:text-slate-900 hover:border-slate-200 border border-transparent transition-all active:scale-95">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- New Pocket Placeholder -->
+          <button (click)="scrollToForm()" class="border-2 border-dashed border-slate-200 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center gap-4 hover:border-blue-300 hover:bg-blue-50/30 transition-all group min-h-[220px]">
+            <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            </div>
             <div>
-              <div class="flex items-center justify-between mb-6">
-                <div
-                  class="px-3 py-1 bg-slate-900 text-white text-[10px] font-black rounded-lg tracking-widest uppercase">
-                  VISA</div>
-                <span class="text-xs font-mono font-bold text-slate-400">{{ acc.accountNumber }}</span>
-              </div>
-              <h4
-                class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">
-                {{ acc.accountName }}</h4>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{ acc.accountType || 'Premium
-                Banking' }}</p>
+              <p class="font-black text-slate-900 uppercase tracking-widest text-[10px]">Add New Pocket</p>
+              <p class="text-xs text-slate-400 font-bold">Goal-based savings</p>
             </div>
-
-            <div class="mt-12">
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Available Balance</p>
-              <p class="text-3xl font-black text-slate-900">R{{ acc.balance | number:'1.2-2' }}</p>
-
-              <!-- Functional Buttons -->
-              <div class="mt-8 flex gap-3">
-                <button (click)="viewTransactionHistory(acc)"
-                  class="flex-1 py-3 bg-slate-100 text-slate-900 rounded-xl font-bold text-xs hover:bg-slate-900 hover:text-white transition-all active:scale-95">
-                  History
-                </button>
-                <button (click)="openStatementModal(acc)"
-                  class="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-slate-900/10"
-                  title="Download Statement">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+          </button>
         </div>
-        }
-        } @else {
-        <div class="col-span-full py-20 bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] text-center">
-          <h3 class="text-xl font-bold text-slate-900 mb-2">No accounts found</h3>
-          <p class="text-slate-500 mb-8">Ready to grow your wealth? Open your first account below.</p>
-        </div>
-        }
       </div>
     </section>
 
@@ -330,6 +370,72 @@
             @if (isStatementLoading()) { <div
               class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
             @else { Generate PDF }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+
+  <!-- Internal Transfer Modal -->
+  @if (showInternalTransferModal()) {
+  <div class="fixed inset-0 z-[200] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-md" (click)="closeInternalTransferModal()"></div>
+
+    <div
+      class="relative bg-white rounded-[2.5rem] w-full max-w-md p-10 shadow-2xl animate-slide-up border border-slate-100 overflow-hidden">
+      <div class="text-center mb-10">
+        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Internal Transfer</h3>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Move Money Between Pockets</p>
+      </div>
+
+      @if (internalTransferError()) {
+      <div class="bg-red-50 border border-red-100 p-4 rounded-xl text-red-600 text-[10px] font-black uppercase tracking-widest mb-6 text-center">
+        {{ internalTransferError() }}
+      </div>
+      }
+
+      <form [formGroup]="internalTransferForm" (ngSubmit)="executeInternalTransfer()" class="space-y-6">
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">From Account</label>
+          <select formControlName="fromAccountId" class="input-premium appearance-none bg-white">
+            <option [value]="0" disabled>Select Source</option>
+            @for (acc of accounts(); track acc.id) {
+              <option [value]="acc.id">{{ acc.accountName }} (R{{ acc.balance | number:'1.2-2' }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">To Account</label>
+          <select formControlName="toAccountId" class="input-premium appearance-none bg-white">
+            <option [value]="0" disabled>Select Destination</option>
+            @for (acc of accounts(); track acc.id) {
+              <option [value]="acc.id">{{ acc.accountName }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Amount to Move</label>
+          <div class="relative">
+            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R</span>
+            <input type="number" formControlName="amount" class="input-premium pl-12" placeholder="0.00">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 pt-4">
+          <button type="button" (click)="closeInternalTransferModal()"
+            class="py-4 bg-slate-50 text-slate-400 font-bold rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-colors">Cancel</button>
+          <button type="submit" [disabled]="!internalTransferForm.valid || isInternalTransferLoading()"
+            class="btn-primary py-4 text-sm shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
+            @if (isInternalTransferLoading()) { <div class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
+            @else { Authorize }
           </button>
         </div>
       </form>

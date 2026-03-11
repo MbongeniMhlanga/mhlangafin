@@ -76,6 +76,52 @@
         </div>
         }
 
+        <!-- Saved Beneficiaries Section -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between px-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Saved Beneficiaries</label>
+            <button (click)="showAddBeneficiary.set(true)" type="button"
+              class="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add New
+            </button>
+          </div>
+
+          <div class="flex gap-3 overflow-x-auto pb-4 -mx-2 px-2 scrollbar-none">
+            @if (isLoadingBeneficiaries()) {
+            @for (i of [1,2,3,4]; track i) {
+            <div class="w-32 h-32 bg-slate-50 rounded-3xl animate-pulse shrink-0"></div>
+            }
+            } @else if (beneficiaries().length > 0) {
+            @for (ben of beneficiaries(); track ben.id) {
+            <button (click)="selectBeneficiary(ben)" type="button"
+              class="w-32 h-32 bg-white border border-slate-100 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 hover:border-blue-600 hover:shadow-xl hover:shadow-blue-500/5 transition-all shrink-0 group active:scale-95">
+              <div
+                class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                {{ ben.name.charAt(0) }}
+              </div>
+              <span class="text-[10px] font-black text-slate-900 line-clamp-1 uppercase tracking-tight">{{ ben.name
+                }}</span>
+            </button>
+            }
+            } @else {
+            <div
+              class="w-full py-8 border-2 border-dashed border-slate-100 rounded-3xl flex flex-col items-center justify-center text-slate-400 gap-2">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                </path>
+              </svg>
+              <span class="text-[10px] font-bold uppercase tracking-widest">No saved beneficiaries</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-100 w-full mb-8"></div>
+
         <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" novalidate class="space-y-10">
           <!-- Withdraw From -->
           <div class="space-y-4">
@@ -85,23 +131,20 @@
             </div>
             @if (isLoadingAccounts()) {
             <div class="h-16 bg-slate-50 rounded-2xl animate-pulse"></div>
-            } @else {
-            <div class="relative group">
-              <select id="fromAccount" formControlName="fromAccountNumber" class="input-premium appearance-none pr-12">
-                <option value="" disabled selected>Select Source Account</option>
-                @for (acc of accounts(); track acc.id) {
-                <option [value]="acc.accountNumber">
-                  {{ acc.accountName }} (R{{ acc.balance | number:'1.2-2' }})
-                </option>
-                }
-              </select>
-              <div
-                class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-slate-900 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
-                </svg>
+            } @else if (mainAccount()) {
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6 flex items-center justify-between group">
+              <div>
+                <p class="text-sm font-black text-slate-900 uppercase tracking-tight">{{ mainAccount().accountName }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ mainAccount().accountNumber }}</p>
               </div>
+              <div class="text-right">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Available</p>
+                <p class="text-lg font-black text-slate-900 leading-none">R{{ mainAccount().balance | number:'1.2-2' }}</p>
+              </div>
+              <input type="hidden" formControlName="fromAccountNumber">
             </div>
+            } @else {
+              <div class="p-6 bg-red-50 text-red-600 rounded-2xl text-xs font-bold uppercase tracking-widest">No access account configured</div>
             }
           </div>
 
@@ -140,7 +183,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <p class="text-[10px] font-bold uppercase tracking-widest">Minimum payment of R10.00 required for instant processing</p>
+              <p class="text-[10px] font-bold uppercase tracking-widest">Minimum payment of R10.00 required for instant
+                processing</p>
             </div>
           </div>
 
@@ -191,3 +235,43 @@
 <app-success-modal [visible]="showModal()" [transactionId]="transactionId()" [amount]="lastAmount()"
   [toAccount]="lastToAccount()" (close)="onModalClose()" (newTransfer)="onNewTransfer()">
 </app-success-modal>
+
+<!-- Add Beneficiary Modal -->
+@if (showAddBeneficiary()) {
+<div class="fixed inset-0 z-[200] flex items-center justify-center p-6">
+  <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-md" (click)="showAddBeneficiary.set(false)"></div>
+  <div class="relative bg-white rounded-[2.5rem] w-full max-w-md p-10 shadow-2xl animate-slide-up border border-slate-100 overflow-hidden">
+    <div class="text-center mb-10">
+      <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+      </div>
+      <h3 class="text-2xl font-black text-slate-900 tracking-tight">Save Beneficiary</h3>
+      <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Register frequent payment recipient</p>
+    </div>
+
+    <form [formGroup]="beneficiaryForm" (ngSubmit)="saveBeneficiary()" class="space-y-6">
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Full Name</label>
+        <input type="text" formControlName="name" placeholder="Recipient Name" class="input-premium">
+      </div>
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Account Number</label>
+        <input type="text" formControlName="accountNumber" placeholder="MFN-XXXXX" class="input-premium">
+      </div>
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Bank Name (Optional)</label>
+        <input type="text" formControlName="bankName" placeholder="e.g. MhlangaFin" class="input-premium">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 pt-4">
+        <button type="button" (click)="showAddBeneficiary.set(false)" class="py-4 bg-slate-50 text-slate-400 font-bold rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-colors">Cancel</button>
+        <button type="submit" [disabled]="beneficiaryForm.invalid || isLoading()" class="btn-primary py-4 text-sm shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
+          @if (isLoading()) { <div class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
+          @else { Save & Authorize }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+```

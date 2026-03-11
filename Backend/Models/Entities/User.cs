@@ -19,5 +19,6 @@ public class User
     public string Role { get; set; } = "User";
 
     public ICollection<Account>? Accounts { get; set; }
+    public ICollection<Beneficiary>? Beneficiaries { get; set; }
     public ICollection<AuditLog>? AuditLogs { get; set; }
 }

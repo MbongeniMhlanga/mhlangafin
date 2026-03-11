@@ -6,5 +6,6 @@ public class AccountDto
     public string AccountName { get; set; } = null!;
     public string AccountNumber { get; set; } = null!;
     public decimal Balance { get; set; }
+    public bool IsMain { get; set; }
     public string Status { get; set; } = null!;
 }

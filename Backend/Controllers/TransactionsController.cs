@@ -24,6 +24,15 @@ public class TransactionsController : ControllerBase
         return BadRequest(result);
     }
 
+    [HttpPost("internal-transfer")]
+    [Authorize]
+    public async Task<IActionResult> InternalTransfer([FromBody] InternalTransferRequest request)
+    {
+        var result = await _tx.InternalTransferAsync(request);
+        if (result.Status == "Success") return Ok(result);
+        return BadRequest(result);
+    }
+
     [HttpGet("history")]
     [Authorize]
     public async Task<IActionResult> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)

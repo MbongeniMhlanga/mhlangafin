@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -20,9 +20,14 @@ export class Transfer implements OnInit {
   private authService = inject(AuthService);
 
   accounts = signal<any[]>([]);
+  beneficiaries = signal<any[]>([]);
   isLoading = signal(false);
   isLoadingAccounts = signal(true);
+  isLoadingBeneficiaries = signal(true);
   errorMessage = signal<string | null>(null);
+
+  mainAccount = computed(() => this.accounts().find(a => a.isMain));
+  showAddBeneficiary = signal(false);
 
   // Modal state
   showModal = signal(false);
@@ -36,11 +41,60 @@ export class Transfer implements OnInit {
     amount: [0, [Validators.required, Validators.min(0.01)]]
   });
 
+  beneficiaryForm = this.fb.nonNullable.group({
+    name: ['', [Validators.required]],
+    accountNumber: ['', [Validators.required]],
+    bankName: ['']
+  });
+
   ngOnInit() {
+    this.fetchAccounts();
+    this.fetchBeneficiaries();
+  }
+
+  fetchAccounts() {
     this.api.getMyAccounts().subscribe({
-      next: (data) => { this.accounts.set(data); this.isLoadingAccounts.set(false); },
+      next: (data) => {
+        this.accounts.set(data);
+        const main = data.find((a: any) => a.isMain);
+        if (main) this.transferForm.patchValue({ fromAccountNumber: main.accountNumber });
+        this.isLoadingAccounts.set(false);
+      },
       error: () => { this.isLoadingAccounts.set(false); }
     });
+  }
+
+  fetchBeneficiaries() {
+    this.isLoadingBeneficiaries.set(true);
+    this.api.getBeneficiaries().subscribe({
+      next: (data) => {
+        this.beneficiaries.set(data);
+        this.isLoadingBeneficiaries.set(false);
+      },
+      error: () => { this.isLoadingBeneficiaries.set(false); }
+    });
+  }
+
+  selectBeneficiary(ben: any) {
+    this.transferForm.patchValue({ toAccountNumber: ben.accountNumber });
+  }
+
+  saveBeneficiary() {
+    if (this.beneficiaryForm.valid) {
+      this.isLoading.set(true);
+      this.api.addBeneficiary(this.beneficiaryForm.getRawValue()).subscribe({
+        next: () => {
+          this.fetchBeneficiaries();
+          this.showAddBeneficiary.set(false);
+          this.beneficiaryForm.reset();
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.errorMessage.set(err.error?.message || 'Failed to save beneficiary');
+          this.isLoading.set(false);
+        }
+      });
+    }
   }
 
   onSubmit() {

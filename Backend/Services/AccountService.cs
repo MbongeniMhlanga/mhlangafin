@@ -33,9 +33,18 @@ public class AccountService : IAccountService
     public async Task<AccountDto> CreateAsync(AccountCreateDto dto)
     {
         var user = await _users.GetByIdAsync(dto.UserId) ?? throw new InvalidOperationException("User not found");
+        var existingAccounts = await _accounts.GetByUserIdAsync(dto.UserId);
+        bool isFirst = !existingAccounts.Any();
 
-        // Auto-generate a unique account number: MFN-YearMonth-RandomSuffix
-        var accountNumber = $"MFN{DateTime.UtcNow:yyyyMM}{Random.Shared.Next(10000, 99999)}";
+        // One account number per user (Main Account only)
+        string accountNumber;
+        if (isFirst) {
+            accountNumber = $"MFN{DateTime.UtcNow:yyyyMM}{Random.Shared.Next(10000, 99999)}";
+        } else {
+            // Sub-accounts don't show an account number to the user, but we'll store a link
+            var mainAcc = existingAccounts.FirstOrDefault(a => a.IsMain);
+            accountNumber = mainAcc?.AccountNumber ?? "PENDING";
+        }
 
         var account = new Account
         {
@@ -43,6 +52,7 @@ public class AccountService : IAccountService
             AccountNumber = accountNumber,
             Balance = dto.InitialBalance,
             UserId = user.Id,
+            IsMain = isFirst,
             Status = "Active"
         };
         await _accounts.AddAsync(account);
@@ -55,8 +65,9 @@ public class AccountService : IAccountService
     {
         Id = a.Id,
         AccountName = a.AccountName,
-        AccountNumber = a.AccountNumber,
+        AccountNumber = a.IsMain ? a.AccountNumber : "Savings Pocket",
         Balance = a.Balance,
+        IsMain = a.IsMain,
         Status = a.Status
     };
 }

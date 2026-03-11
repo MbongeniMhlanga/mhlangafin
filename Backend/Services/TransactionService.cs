@@ -74,6 +74,59 @@ public class TransactionService : ITransactionService
         }
     }
 
+    public async Task<TransferResponse> InternalTransferAsync(InternalTransferRequest request)
+    {
+        if (request.Amount <= 0)
+            return new TransferResponse { Status = "Failed", Message = "Invalid amount" };
+
+        if (request.FromAccountId == request.ToAccountId)
+            return new TransferResponse { Status = "Failed", Message = "Cannot transfer to the same account" };
+
+        await using var tx = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            var from = await _db.Accounts.FindAsync(request.FromAccountId);
+            var to = await _db.Accounts.FindAsync(request.ToAccountId);
+
+            if (from is null || to is null)
+                return new TransferResponse { Status = "Failed", Message = "Account not found" };
+
+            if (from.UserId != to.UserId)
+                return new TransferResponse { Status = "Failed", Message = "Unauthorized transfer" };
+
+            if (from.Balance < request.Amount)
+                return new TransferResponse { Status = "Failed", Message = "Insufficient funds" };
+
+            from.Balance -= request.Amount;
+            to.Balance += request.Amount;
+
+            var txEntity = new Transaction
+            {
+                FromAccountId = from.Id,
+                ToAccountId = to.Id,
+                Amount = request.Amount,
+                Type = "Internal Transfer",
+                Timestamp = DateTime.UtcNow
+            };
+
+            await _txRepo.AddAsync(txEntity);
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return new TransferResponse
+            {
+                TransactionId = txEntity.Id,
+                Status = "Success",
+                Message = "Funds moved successfully"
+            };
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task<TransactionHistoryResponse> GetTransactionHistoryAsync(TransactionHistoryRequest request)
     {
         var account = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == request.AccountNumber);
