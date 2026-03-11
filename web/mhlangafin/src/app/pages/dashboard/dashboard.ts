@@ -180,7 +180,7 @@ export class Dashboard implements OnInit {
           const fileName = `statement_${this.selectedAccount().accountNumber}_${startDate.toISOString().split('T')[0]}_to_${endDate.toISOString().split('T')[0]}.pdf`;
           link.download = fileName;
           link.click();
-          
+
           // Clean up
           window.URL.revokeObjectURL(downloadUrl);
           this.isStatementLoading.set(false);

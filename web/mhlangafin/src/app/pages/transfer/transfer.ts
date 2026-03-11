@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Api } from '../../services/api';
+import { AuthService } from '../../services/auth';
 import { SuccessModal } from '../../shared/success-modal/success-modal';
 
 @Component({
@@ -14,30 +15,31 @@ import { SuccessModal } from '../../shared/success-modal/success-modal';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Transfer implements OnInit {
-  private fb  = inject(FormBuilder);
+  private fb = inject(FormBuilder);
   private api = inject(Api);
+  private authService = inject(AuthService);
 
-  accounts          = signal<any[]>([]);
-  isLoading         = signal(false);
+  accounts = signal<any[]>([]);
+  isLoading = signal(false);
   isLoadingAccounts = signal(true);
-  errorMessage      = signal<string | null>(null);
+  errorMessage = signal<string | null>(null);
 
   // Modal state
-  showModal     = signal(false);
+  showModal = signal(false);
   transactionId = signal<number | null>(null);
-  lastAmount    = signal<number>(0);
+  lastAmount = signal<number>(0);
   lastToAccount = signal<string>('');
 
   transferForm = this.fb.nonNullable.group({
     fromAccountNumber: ['', [Validators.required]],
-    toAccountNumber:   ['', [Validators.required]],
-    amount:            [0,  [Validators.required, Validators.min(0.01)]]
+    toAccountNumber: ['', [Validators.required]],
+    amount: [0, [Validators.required, Validators.min(0.01)]]
   });
 
   ngOnInit() {
     this.api.getMyAccounts().subscribe({
-      next:  (data) => { this.accounts.set(data); this.isLoadingAccounts.set(false); },
-      error: ()     => { this.isLoadingAccounts.set(false); }
+      next: (data) => { this.accounts.set(data); this.isLoadingAccounts.set(false); },
+      error: () => { this.isLoadingAccounts.set(false); }
     });
   }
 
@@ -70,7 +72,7 @@ export class Transfer implements OnInit {
       error: (err) => {
         this.isLoading.set(false);
         this.errorMessage.set(
-          err?.error?.message || err?.error?.Message || 'Transfer failed. Please try again.'
+          err?.error?.message || err?.error?.Message || 'Payment failed. Please try again.'
         );
       }
     });
@@ -84,5 +86,9 @@ export class Transfer implements OnInit {
   onNewTransfer() {
     this.showModal.set(false);
     this.transferForm.reset({ fromAccountNumber: '', toAccountNumber: '', amount: 0 });
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }

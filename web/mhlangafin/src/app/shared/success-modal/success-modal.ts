@@ -31,7 +31,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
               </div>
             </div>
 
-            <h2 id="modal-title" class="text-3xl font-black text-slate-900 tracking-tight mb-3">Payment Successful</h2>
+            <h2 id="modal-title" class="text-3xl font-black text-slate-900 tracking-tight mb-3">Beneficiary Paid</h2>
             <p class="text-slate-500 font-medium mb-10 leading-relaxed">Your transaction has been authorized and processed instantly.</p>
 
             <!-- Transaction Details Card -->
@@ -65,7 +65,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
             <div class="space-y-4">
               <button (click)="newTransfer.emit()"
                 class="w-full btn-primary py-5 text-lg shadow-xl shadow-blue-500/10">
-                Make Another Payment
+                Pay Another Beneficiary
               </button>
               <button (click)="close.emit()"
                 class="w-full btn-secondary py-5 text-lg hover:bg-slate-50 border-slate-200">

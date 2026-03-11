@@ -6,7 +6,9 @@
       <div class="flex items-center gap-4">
         <div class="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+            </path>
           </svg>
         </div>
         <div>
@@ -17,14 +19,21 @@
 
       <div class="flex items-center gap-8">
         <div class="hidden md:flex items-center gap-6">
-          <a routerLink="/dashboard" class="text-sm font-bold text-slate-900 border-b-2 border-slate-900 py-1">Dashboard</a>
-          <a routerLink="/transfer" class="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Transfers</a>
-          <a href="#" class="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Wealth</a>
+          <a routerLink="/dashboard"
+            class="text-sm font-bold text-slate-900 border-b-2 border-slate-900 py-1">Dashboard</a>
+          <a routerLink="/transfer" class="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Pay
+            Beneficiary</a>
+          <a routerLink="/digital-card"
+            class="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Digital Card</a>
         </div>
         <div class="h-8 w-px bg-slate-200"></div>
-        <button (click)="logout()" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-red-600 transition-colors">
+        <button (click)="logout()"
+          class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-red-600 transition-colors">
           <span>Logout</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
         </button>
       </div>
     </div>
@@ -33,48 +42,45 @@
   <main class="max-w-7xl mx-auto p-6 lg:p-10 space-y-10 animate-slide-up">
     <!-- Error Notification -->
     @if (error()) {
-      <div class="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-4 text-red-700 animate-shake">
-        <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        <span class="text-sm font-bold">{{ error() }}</span>
-      </div>
+    <div class="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-4 text-red-700 animate-shake">
+      <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+        </path>
+      </svg>
+      <span class="text-sm font-bold">{{ error() }}</span>
+    </div>
     }
 
-    <!-- Hero Balance Card (High Visibility as per user request) -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-2 bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl">
-        <div class="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px] -mr-40 -mt-40"></div>
-        <div class="relative z-10">
-          <p class="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Total Optimized Balance</p>
-          <h2 class="text-6xl font-black tracking-tight mb-8">
-            @if (isLoading()) { <span class="animate-pulse opacity-50">...</span> }
+    <!-- Hero Balance & Quick Actions Section -->
+    <section class="grid grid-cols-1 gap-8">
+      <!-- Total Balance Card -->
+      <div
+        class="bg-slate-900 rounded-[2.5rem] p-12 text-white relative overflow-hidden shadow-2xl flex flex-col justify-center min-h-[320px]">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] -mr-40 -mt-40"></div>
+        <div class="relative z-10 flex flex-col items-center text-center">
+          <p class="text-slate-400 font-bold uppercase tracking-widest text-xs mb-3">Total Optimized Balance</p>
+          <h2 class="text-7xl font-black tracking-tight mb-12">
+            @if (isLoading()) { <span class="animate-pulse opacity-50">R 0.00</span> }
             @else { R{{ accounts().reduce((sum, acc) => sum + acc.balance, 0) | number:'1.2-2' }} }
           </h2>
-          <div class="flex flex-wrap gap-4">
-            <a routerLink="/transfer" class="px-6 py-3 bg-white text-slate-900 rounded-xl font-bold text-sm hover:scale-105 transition-transform flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-              Transfer Funds
+          <div class="flex flex-wrap justify-center gap-6">
+            <a routerLink="/transfer"
+              class="px-10 py-5 bg-white text-slate-900 rounded-[2rem] font-bold text-base hover:scale-105 transition-all shadow-2xl shadow-white/5 flex items-center gap-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+              </svg>
+              Pay Beneficiary
             </a>
-            <button (click)="scrollToForm()" class="px-6 py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-700 transition-colors flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-              New Account
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Stats Card -->
-      <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-sm">
-        <div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1">Portfolio Insights</h3>
-          <p class="text-slate-500 text-sm">Your wealth grow by 2.4% this month</p>
-        </div>
-        <div class="space-y-4">
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Net Interest</span>
-            <span class="text-emerald-500 font-bold">+ R1,240.00</span>
-          </div>
-          <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div class="h-full bg-blue-600 rounded-full" style="width: 65%"></div>
+            <a routerLink="/digital-card"
+              class="px-10 py-5 bg-blue-600 text-white rounded-[2rem] font-bold text-base hover:bg-blue-500 transition-all shadow-2xl shadow-blue-500/20 flex items-center gap-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+              </svg>
+              Manage Card
+            </a>
           </div>
         </div>
       </div>
@@ -84,60 +90,76 @@
     <section>
       <div class="flex items-center justify-between mb-8">
         <h3 class="text-3xl font-black text-slate-900 tracking-tight">Accounts Portfolio</h3>
-        <span class="px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">{{ accounts().length }} Accounts Active</span>
+        <span class="px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">{{ accounts().length }}
+          Accounts Active</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @if (isLoading()) {
-          @for (i of [1,2,3]; track i) {
-            <div class="h-64 bg-slate-100 rounded-3xl animate-pulse"></div>
-          }
+        @for (i of [1,2,3]; track i) {
+        <div class="h-64 bg-slate-100 rounded-3xl animate-pulse"></div>
+        }
         } @else if (accounts().length > 0) {
-          @for (acc of accounts(); track acc.id) {
-            <div class="group bg-white border border-slate-200 rounded-[2rem] p-8 hover:border-slate-900 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
-              <!-- Decorative ring -->
-              <div class="absolute -right-10 -bottom-10 w-40 h-40 border-[20px] border-slate-50 group-hover:border-blue-50 rounded-full transition-colors"></div>
-              
-              <div class="relative z-10 flex flex-col h-full justify-between">
-                <div>
-                  <div class="flex items-center justify-between mb-6">
-                    <div class="px-3 py-1 bg-slate-900 text-white text-[10px] font-black rounded-lg tracking-widest uppercase">VISA</div>
-                    <span class="text-xs font-mono font-bold text-slate-400">{{ acc.accountNumber }}</span>
-                  </div>
-                  <h4 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{{ acc.accountName }}</h4>
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{ acc.accountType || 'Premium Banking' }}</p>
-                </div>
+        @for (acc of accounts(); track acc.id) {
+        <div
+          class="group bg-white border border-slate-200 rounded-[2rem] p-8 hover:border-slate-900 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+          <!-- Decorative ring -->
+          <div
+            class="absolute -right-10 -bottom-10 w-40 h-40 border-[20px] border-slate-50 group-hover:border-blue-50 rounded-full transition-colors">
+          </div>
 
-                <div class="mt-12">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Available Balance</p>
-                  <p class="text-3xl font-black text-slate-900">R{{ acc.balance | number:'1.2-2' }}</p>
-                  
-                  <!-- Functional Buttons -->
-                  <div class="mt-8 flex gap-3">
-                    <button (click)="viewTransactionHistory(acc)" class="flex-1 py-3 bg-slate-100 text-slate-900 rounded-xl font-bold text-xs hover:bg-slate-900 hover:text-white transition-all active:scale-95">
-                      History
-                    </button>
-                    <button (click)="openStatementModal(acc)" class="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-slate-900/10" title="Download Statement">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    </button>
-                  </div>
-                </div>
+          <div class="relative z-10 flex flex-col h-full justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-6">
+                <div
+                  class="px-3 py-1 bg-slate-900 text-white text-[10px] font-black rounded-lg tracking-widest uppercase">
+                  VISA</div>
+                <span class="text-xs font-mono font-bold text-slate-400">{{ acc.accountNumber }}</span>
+              </div>
+              <h4
+                class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">
+                {{ acc.accountName }}</h4>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{ acc.accountType || 'Premium
+                Banking' }}</p>
+            </div>
+
+            <div class="mt-12">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Available Balance</p>
+              <p class="text-3xl font-black text-slate-900">R{{ acc.balance | number:'1.2-2' }}</p>
+
+              <!-- Functional Buttons -->
+              <div class="mt-8 flex gap-3">
+                <button (click)="viewTransactionHistory(acc)"
+                  class="flex-1 py-3 bg-slate-100 text-slate-900 rounded-xl font-bold text-xs hover:bg-slate-900 hover:text-white transition-all active:scale-95">
+                  History
+                </button>
+                <button (click)="openStatementModal(acc)"
+                  class="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-slate-900/10"
+                  title="Download Statement">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
+                </button>
               </div>
             </div>
-          }
-        } @else {
-          <div class="col-span-full py-20 bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] text-center">
-            <h3 class="text-xl font-bold text-slate-900 mb-2">No accounts found</h3>
-            <p class="text-slate-500 mb-8">Ready to grow your wealth? Open your first account below.</p>
           </div>
+        </div>
+        }
+        } @else {
+        <div class="col-span-full py-20 bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] text-center">
+          <h3 class="text-xl font-bold text-slate-900 mb-2">No accounts found</h3>
+          <p class="text-slate-500 mb-8">Ready to grow your wealth? Open your first account below.</p>
+        </div>
         }
       </div>
     </section>
 
     <!-- Open New Account Section (Restored Labels) -->
-    <section id="openAccountSection" class="bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm overflow-hidden relative">
+    <section id="openAccountSection"
+      class="bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm overflow-hidden relative">
       <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50"></div>
-      
+
       <div class="max-w-xl mx-auto">
         <div class="text-center mb-10">
           <h3 class="text-3xl font-black text-slate-900 tracking-tight">Open New Account</h3>
@@ -156,11 +178,14 @@
               <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">R</span>
               <input type="number" formControlName="initialBalance" placeholder="0.00" class="input-premium pl-12">
             </div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest pl-1">Minimum deposit of R100.00 recommended</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest pl-1">Minimum deposit of R100.00
+              recommended</p>
           </div>
 
-          <button type="submit" [disabled]="createAccountForm.invalid || isLoading()" class="w-full btn-primary py-4 text-base shadow-2xl shadow-slate-900/10 active:scale-95 transition-all disabled:opacity-50">
-            @if (isLoading()) { <div class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
+          <button type="submit" [disabled]="createAccountForm.invalid || isLoading()"
+            class="w-full btn-primary py-4 text-base shadow-2xl shadow-slate-900/10 active:scale-95 transition-all disabled:opacity-50">
+            @if (isLoading()) { <div
+              class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
             @else { Open Account }
           </button>
         </form>
@@ -169,125 +194,146 @@
   </main>
 
   <!-- Modals (Functional & High Z-Index) -->
-  
+
   <!-- Transaction History Modal -->
   @if (selectedAccount() && (transactionHistory() || isHistoryLoading())) {
-    <div class="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-md" (click)="closeTransactionHistory()"></div>
-      
-      <div class="relative bg-white rounded-[2.5rem] w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-slide-up">
-        <div class="p-8 lg:p-12 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div>
-            <h3 class="text-3xl font-black text-slate-900 tracking-tight">Activity Details</h3>
-            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs mt-1">{{ selectedAccount().accountName }} • {{ selectedAccount().accountNumber }}</p>
-          </div>
-          <button (click)="closeTransactionHistory()" class="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-slate-900 hover:border-slate-900 transition-all active:scale-90 shadow-sm">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
+  <div class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-md" (click)="closeTransactionHistory()"></div>
+
+    <div
+      class="relative bg-white rounded-[2.5rem] w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-slide-up">
+      <div class="p-8 lg:p-12 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div>
+          <h3 class="text-3xl font-black text-slate-900 tracking-tight">Activity Details</h3>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs mt-1">{{ selectedAccount().accountName }}
+            • {{ selectedAccount().accountNumber }}</p>
         </div>
+        <button (click)="closeTransactionHistory()"
+          class="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-slate-900 hover:border-slate-900 transition-all active:scale-90 shadow-sm">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
 
-        <div class="flex-1 overflow-y-auto p-8 lg:p-12">
-          @if (isHistoryLoading()) {
-            <div class="space-y-6">
-              @for (i of [1,2,3,4,5]; track i) {
-                <div class="h-16 bg-slate-50 rounded-2xl animate-pulse"></div>
-              }
-            </div>
-          } @else if (historyError()) {
-            <div class="text-center py-20 bg-red-50 rounded-[2rem] border border-red-100">
-              <p class="text-red-600 font-bold mb-4">{{ historyError() }}</p>
-              <button (click)="viewTransactionHistory(selectedAccount())" class="px-6 py-2 bg-red-600 text-white rounded-xl font-bold text-xs">Retry Load</button>
-            </div>
-          } @else {
-            <div class="space-y-4">
-              <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10 pb-10 border-b border-slate-100">
-                <div class="space-y-1">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Txns</p>
-                  <p class="text-xl font-black text-slate-900">{{ transactionHistory().totalTransactions }}</p>
-                </div>
-                <div class="space-y-1">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Page</p>
-                  <p class="text-xl font-black text-slate-900">{{ transactionHistory().page }} of {{ transactionHistory().totalPages }}</p>
-                </div>
-                <div class="space-y-1">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Bal</p>
-                  <p class="text-xl font-black text-emerald-500">R{{ selectedAccount().balance | number:'1.2-2' }}</p>
-                </div>
-                <div class="space-y-1">
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ownership</p>
-                  <p class="text-xl font-black text-slate-900">Private</p>
-                </div>
-              </div>
-
-              <div class="space-y-3">
-                @for (tx of transactionHistory().transactions; track tx.id) {
-                  <div class="group flex items-center justify-between p-5 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 transition-all hover:shadow-lg hover:shadow-blue-500/5">
-                    <div class="flex items-center gap-5">
-                      <div [class]="'w-12 h-12 rounded-2xl flex items-center justify-center ' + (tx.amount < 0 ? 'bg-slate-900 text-white' : 'bg-emerald-500 text-white')">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="tx.amount < 0 ? 'M19 14l-7 7m0 0l-7-7m7 7V3' : 'M5 10l7-7m0 0l7 7m-7-7v18'"></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <p class="font-bold text-slate-900 text-lg">{{ tx.description }}</p>
-                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">{{ tx.timestamp | date:'dd MMM yyyy • HH:mm' }}</p>
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      <p [class]="'text-xl font-black ' + (tx.amount < 0 ? 'text-slate-900' : 'text-emerald-500')">
-                        {{ tx.amount | currency:'ZAR':'symbol-narrow':'1.2-2' }}
-                      </p>
-                      <p class="text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em]">Authorized</p>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
+      <div class="flex-1 overflow-y-auto p-8 lg:p-12">
+        @if (isHistoryLoading()) {
+        <div class="space-y-6">
+          @for (i of [1,2,3,4,5]; track i) {
+          <div class="h-16 bg-slate-50 rounded-2xl animate-pulse"></div>
           }
         </div>
+        } @else if (historyError()) {
+        <div class="text-center py-20 bg-red-50 rounded-[2rem] border border-red-100">
+          <p class="text-red-600 font-bold mb-4">{{ historyError() }}</p>
+          <button (click)="viewTransactionHistory(selectedAccount())"
+            class="px-6 py-2 bg-red-600 text-white rounded-xl font-bold text-xs">Retry Load</button>
+        </div>
+        } @else {
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10 pb-10 border-b border-slate-100">
+            <div class="space-y-1">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Txns</p>
+              <p class="text-xl font-black text-slate-900">{{ transactionHistory().totalTransactions }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Page</p>
+              <p class="text-xl font-black text-slate-900">{{ transactionHistory().page }} of {{
+                transactionHistory().totalPages }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Bal</p>
+              <p class="text-xl font-black text-emerald-500">R{{ selectedAccount().balance | number:'1.2-2' }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ownership</p>
+              <p class="text-xl font-black text-slate-900">Private</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            @for (tx of transactionHistory().transactions; track tx.id) {
+            <div
+              class="group flex items-center justify-between p-5 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 transition-all hover:shadow-lg hover:shadow-blue-500/5">
+              <div class="flex items-center gap-5">
+                <div
+                  [class]="'w-12 h-12 rounded-2xl flex items-center justify-center ' + (tx.amount < 0 ? 'bg-slate-900 text-white' : 'bg-emerald-500 text-white')">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      [attr.d]="tx.amount < 0 ? 'M19 14l-7 7m0 0l-7-7m7 7V3' : 'M5 10l7-7m0 0l7 7m-7-7v18'"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-900 text-lg">{{ tx.description }}</p>
+                  <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">{{ tx.timestamp | date:'dd MMM
+                    yyyy • HH:mm' }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p [class]="'text-xl font-black ' + (tx.amount < 0 ? 'text-slate-900' : 'text-emerald-500')">
+                  {{ tx.amount | currency:'ZAR':'symbol-narrow':'1.2-2' }}
+                </p>
+                <p class="text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em]">Authorized</p>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
       </div>
     </div>
+  </div>
   }
 
   <!-- Account Statement Modal -->
   @if (selectedAccount() && !transactionHistory() && !isHistoryLoading()) {
-    <div class="fixed inset-0 z-[200] flex items-center justify-center p-6">
-      <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-md" (click)="closeStatementModal()"></div>
-      
-      <div class="relative bg-white rounded-[2.5rem] w-full max-w-md p-12 shadow-2xl animate-slide-up border border-slate-100 overflow-hidden text-center">
-        <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
-          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+  <div class="fixed inset-0 z-[200] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-md" (click)="closeStatementModal()"></div>
+
+    <div
+      class="relative bg-white rounded-[2.5rem] w-full max-w-md p-12 shadow-2xl animate-slide-up border border-slate-100 overflow-hidden text-center">
+      <div
+        class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+          </path>
+        </svg>
+      </div>
+
+      <h3 class="text-3xl font-black text-slate-900 tracking-tight mb-2">Account Statements</h3>
+      <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-10">{{ selectedAccount().accountName }}
+        ({{ selectedAccount().accountNumber }})</p>
+
+      @if (statementError()) {
+      <div class="bg-red-50 border border-red-100 p-4 rounded-xl text-red-600 text-xs font-bold mb-6 italic">
+        {{ statementError() }}
+      </div>
+      }
+
+      <form [formGroup]="statementForm" (ngSubmit)="downloadStatement()" class="space-y-6 text-left">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Start Date</label>
+          <input id="startDate" type="date" formControlName="startDate" class="input-premium">
         </div>
 
-        <h3 class="text-3xl font-black text-slate-900 tracking-tight mb-2">Account Statements</h3>
-        <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-10">{{ selectedAccount().accountName }} ({{ selectedAccount().accountNumber }})</p>
-        
-        @if (statementError()) {
-          <div class="bg-red-50 border border-red-100 p-4 rounded-xl text-red-600 text-xs font-bold mb-6 italic">
-            {{ statementError() }}
-          </div>
-        }
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">End Date</label>
+          <input id="endDate" type="date" formControlName="endDate" class="input-premium">
+        </div>
 
-        <form [formGroup]="statementForm" (ngSubmit)="downloadStatement()" class="space-y-6 text-left">
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Start Date</label>
-            <input id="startDate" type="date" formControlName="startDate" class="input-premium">
-          </div>
-
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">End Date</label>
-            <input id="endDate" type="date" formControlName="endDate" class="input-premium">
-          </div>
-
-          <div class="grid grid-cols-2 gap-4 pt-4">
-            <button type="button" (click)="closeStatementModal()" class="py-4 bg-slate-50 text-slate-400 font-bold rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-colors">Dismiss</button>
-            <button type="submit" [disabled]="!statementForm.valid || isStatementLoading()" class="btn-primary py-4 text-sm shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
-              @if (isStatementLoading()) { <div class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
-              @else { Generate PDF }
-            </button>
-          </div>
-        </form>
-      </div>
+        <div class="grid grid-cols-2 gap-4 pt-4">
+          <button type="button" (click)="closeStatementModal()"
+            class="py-4 bg-slate-50 text-slate-400 font-bold rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-colors">Dismiss</button>
+          <button type="submit" [disabled]="!statementForm.valid || isStatementLoading()"
+            class="btn-primary py-4 text-sm shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
+            @if (isStatementLoading()) { <div
+              class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
+            @else { Generate PDF }
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
   }
 </div>

@@ -122,3 +122,7 @@ h6 {
 .glass-panel {
   @apply bg-white/80 backdrop-blur-md border border-white/20;
 }
+
+.perspective-2000 {
+  perspective: 2000px;
+}
