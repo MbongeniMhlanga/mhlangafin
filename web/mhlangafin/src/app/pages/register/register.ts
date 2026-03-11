@@ -19,7 +19,14 @@ export class Register {
     firstName: ['', [Validators.required, Validators.minLength(2)]],
     lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required]]
+  }, {
+    validators: (group) => {
+      const pass = group.get('password')?.value;
+      const confirm = group.get('confirmPassword')?.value;
+      return pass === confirm ? null : { notMatched: true };
+    }
   });
 
   errorMessage = signal<string | null>(null);
@@ -30,14 +37,26 @@ export class Register {
       this.isLoading.set(true);
       this.errorMessage.set(null);
 
-      this.authService.register(this.registerForm.getRawValue()).subscribe({
+      const { firstName, lastName, email, payloadPassword } = {
+        firstName: this.registerForm.value.firstName!,
+        lastName: this.registerForm.value.lastName!,
+        email: this.registerForm.value.email!,
+        payloadPassword: this.registerForm.value.password!
+      };
+
+      this.authService.register({
+        firstName,
+        lastName,
+        email,
+        password: payloadPassword
+      }).subscribe({
         next: () => {
           this.isLoading.set(false);
           this.router.navigate(['/login']);
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.errorMessage.set(err?.error?.message || 'Failed to register. Please try again.');
+          this.errorMessage.set(err?.error?.message || 'Failed to register. Email may already be in use.');
         }
       });
     }

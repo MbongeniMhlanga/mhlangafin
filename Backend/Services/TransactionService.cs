@@ -129,7 +129,13 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionHistoryResponse> GetTransactionHistoryAsync(TransactionHistoryRequest request)
     {
-        var account = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == request.AccountNumber);
+        Account? account = null;
+        if (int.TryParse(request.AccountNumber, out int accId))
+            account = await _db.Accounts.FindAsync(accId);
+
+        if (account == null)
+            account = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == request.AccountNumber);
+
         if (account == null)
             return new TransactionHistoryResponse { Transactions = new List<TransactionDto>() };
 
@@ -175,9 +181,12 @@ public class TransactionService : ITransactionService
 
     public async Task<StatementResponse> GenerateStatementAsync(StatementRequest request, string format = "PDF")
     {
-        var account = await _db.Accounts
-            .Include(a => a.User)
-            .FirstOrDefaultAsync(a => a.AccountNumber == request.AccountNumber);
+        Account? account = null;
+        if (int.TryParse(request.AccountNumber, out int accId))
+            account = await _db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.Id == accId);
+
+        if (account == null)
+            account = await _db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.AccountNumber == request.AccountNumber);
         
         if (account == null)
             return new StatementResponse();

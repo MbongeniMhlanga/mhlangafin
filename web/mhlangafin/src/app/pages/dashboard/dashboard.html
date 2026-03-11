@@ -122,6 +122,9 @@
                   <button (click)="openInternalTransferModal(mainAccount())" class="px-8 py-4 bg-slate-100 text-slate-900 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all active:scale-95">
                     Move Money
                   </button>
+                  <button (click)="openStatementModal(mainAccount())" class="px-8 py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold text-sm hover:border-slate-900 transition-all active:scale-95 shadow-sm">
+                    Statements
+                  </button>
                 </div>
               </div>
 
@@ -172,8 +175,11 @@
                     <button (click)="openInternalTransferModal(acc)" class="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all active:scale-95">
                       Move Funds
                     </button>
-                    <button (click)="viewTransactionHistory(acc)" class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center hover:bg-white hover:text-slate-900 hover:border-slate-200 border border-transparent transition-all active:scale-95">
+                    <button (click)="viewTransactionHistory(acc)" class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center hover:bg-white hover:text-slate-900 hover:border-slate-200 border border-transparent transition-all active:scale-95" title="Timeline">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
+                    <button (click)="openStatementModal(acc)" class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center hover:bg-white hover:text-slate-900 hover:border-slate-200 border border-transparent transition-all active:scale-95" title="Download Statement">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     </button>
                   </div>
                 </div>
@@ -406,7 +412,7 @@
           <select formControlName="fromAccountId" class="input-premium appearance-none bg-white">
             <option [value]="0" disabled>Select Source</option>
             @for (acc of accounts(); track acc.id) {
-              <option [value]="acc.id">{{ acc.accountName }} (R{{ acc.balance | number:'1.2-2' }})</option>
+              <option [ngValue]="acc.id">{{ acc.accountName }} (R{{ acc.balance | number:'1.2-2' }})</option>
             }
           </select>
         </div>
@@ -416,7 +422,7 @@
           <select formControlName="toAccountId" class="input-premium appearance-none bg-white">
             <option [value]="0" disabled>Select Destination</option>
             @for (acc of accounts(); track acc.id) {
-              <option [value]="acc.id">{{ acc.accountName }}</option>
+              <option [ngValue]="acc.id">{{ acc.accountName }}</option>
             }
           </select>
         </div>

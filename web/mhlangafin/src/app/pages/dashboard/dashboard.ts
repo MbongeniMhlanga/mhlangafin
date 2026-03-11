@@ -141,7 +141,7 @@ export class Dashboard implements OnInit {
     this.historyError.set(null);
     this.isHistoryLoading.set(true);
 
-    this.api.getTransactionHistory(account.accountNumber).subscribe({
+    this.api.getTransactionHistory(account.id.toString(), undefined, undefined, 1, 20).subscribe({
       next: (data) => {
         console.log('Transaction history loaded:', data);
         this.transactionHistory.set(data);
@@ -179,7 +179,7 @@ export class Dashboard implements OnInit {
 
       console.log('Calling API to download statement...');
       this.api.downloadStatement(
-        this.selectedAccount().accountNumber,
+        this.selectedAccount().id.toString(),
         startDate,
         endDate,
         'PDF'
@@ -252,7 +252,11 @@ export class Dashboard implements OnInit {
       this.isInternalTransferLoading.set(true);
       this.internalTransferError.set(null);
 
-      this.api.internalTransfer({ fromAccountId, toAccountId, amount }).subscribe({
+      this.api.internalTransfer({ 
+        fromAccountId: Number(fromAccountId), 
+        toAccountId: Number(toAccountId), 
+        amount: Number(amount) 
+      }).subscribe({
         next: () => {
           this.isInternalTransferLoading.set(false);
           this.closeInternalTransferModal();

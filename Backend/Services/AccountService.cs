@@ -55,6 +55,17 @@ public class AccountService : IAccountService
             IsMain = isFirst,
             Status = "Active"
         };
+
+        if (!isFirst)
+        {
+            var mainAcc = existingAccounts.FirstOrDefault(a => a.IsMain);
+            if (mainAcc == null) throw new InvalidOperationException("Main account not found");
+            if (mainAcc.Balance < dto.InitialBalance) throw new InvalidOperationException("Insufficient funds in Main account for initial deposit");
+
+            mainAcc.Balance -= dto.InitialBalance;
+            // No need to call SaveChanges yet, adding the new account and saving will handle it
+        }
+
         await _accounts.AddAsync(account);
         await _accounts.SaveChangesAsync();
 
