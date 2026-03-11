@@ -1,145 +1,79 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-  <!-- Animated background elements -->
-  <div class="absolute inset-0 overflow-hidden -z-10">
-    <div class="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full opacity-30 animate-pulse"></div>
-    <div class="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-tr from-emerald-200 to-cyan-200 rounded-full opacity-25 animate-pulse delay-1000"></div>
-    <div class="absolute bottom-0 left-1/3 w-72 h-72 bg-gradient-to-bl from-purple-200 to-pink-200 rounded-full opacity-20 animate-pulse delay-2000"></div>
+<div class="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white text-slate-900 font-sans overflow-hidden">
+  <!-- Left Side: Visual Brand Impact -->
+  <div class="hidden lg:flex bg-slate-900 relative flex-col justify-between p-20 text-white overflow-hidden">
+    <!-- Decorative background -->
+    <div class="absolute inset-0 bg-blue-600/10 blur-[120px] rounded-full -ml-40 -mt-40"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 blur-[100px] rounded-full -mr-40 -mb-40"></div>
+    
+    <div class="relative z-10 flex items-center gap-4">
+      <div class="w-12 h-12 bg-white text-slate-900 rounded-2xl flex items-center justify-center font-black text-2xl shadow-2xl transform rotate-3">M</div>
+      <h1 class="text-2xl font-black tracking-tighter">MhlangaFin</h1>
+    </div>
+
+    <div class="relative z-10">
+      <h2 class="text-6xl font-black tracking-tight leading-[1.1] mb-8">Secure your <br><span class="text-emerald-400">financial future</span> <br>today.</h2>
+      <p class="text-slate-400 text-lg max-w-md font-medium leading-relaxed">Join thousands of elite individuals managing their wealth with the next generation of digital banking.</p>
+    </div>
+
+    <div class="relative z-10 flex items-center gap-8">
+      <div class="flex -space-x-3">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] font-bold">User</div>
+        }
+      </div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">+ 10k Active Clients</p>
+    </div>
   </div>
 
-  <!-- Floating banking elements -->
-  <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute top-20 left-10 w-20 h-20 border-2 border-blue-200 rounded-lg opacity-30 animate-bounce"></div>
-    <div class="absolute top-40 right-20 w-16 h-16 border-2 border-indigo-200 rounded opacity-25 animate-bounce delay-500"></div>
-    <div class="absolute bottom-20 left-20 w-24 h-16 border-2 border-emerald-200 rounded opacity-20 animate-bounce delay-1000"></div>
-  </div>
-
-  <div class="max-w-md w-full space-y-8 relative z-10">
-    <!-- Main login card -->
-    <div class="bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-white/20">
-      <!-- Header section -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg mb-6">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-        </div>
-        <h2 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">Welcome to MhlangaFin</h2>
-        <p class="text-gray-600 text-sm">Secure banking at your fingertips</p>
+  <!-- Right Side: Interaction -->
+  <div class="flex items-center justify-center p-8 lg:p-24 bg-slate-50 relative">
+    <div class="w-full max-w-md space-y-12 animate-slide-up">
+      <!-- Header -->
+      <div class="text-center lg:text-left space-y-4">
+        <h2 class="text-4xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
+        <p class="text-slate-500 font-medium">Please enter your credentials to access your portal.</p>
       </div>
 
-      <!-- Login form -->
-        <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
-          <!-- Error message -->
-          @if (errorMessage()) {
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3" role="alert" aria-live="polite">
-              <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <div>
-                <p class="text-sm font-medium text-red-700">Error</p>
-                <p class="text-xs text-red-600 mt-1">{{ errorMessage() }}</p>
-              </div>
-            </div>
-          }
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="space-y-8">
+        @if (errorMessage()) {
+          <div class="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-bold animate-shake">
+            {{ errorMessage() }}
+          </div>
+        }
 
-          <!-- Email input -->
-          <div>
-            <label for="email-address" class="block text-sm font-semibold text-gray-700 mb-2">
-              Email Address <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
-                </svg>
-              </div>
-              <input id="email-address" type="email" autocomplete="email" required formControlName="email"
-                placeholder="your.email@domain.com"
-                aria-describedby="email-help"
-                class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                [class.border-red-300]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-                [class.focus:ring-red-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-              <div id="email-help" class="sr-only">Enter your email address to sign in to your MhlangaFin account</div>
-            </div>
-            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-              <p class="mt-2 text-sm text-red-600" id="email-error">
-                Please enter a valid email address
-              </p>
-            }
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Email Address</label>
+            <input type="email" formControlName="email" placeholder="example@mhlangafin.com" class="input-premium">
           </div>
 
-          <!-- Password input -->
-          <div>
-            <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
-              Password <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                </svg>
-              </div>
-              <input id="password" type="password" autocomplete="current-password" required formControlName="password"
-                placeholder="Enter your password"
-                aria-describedby="password-help"
-                class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                [class.border-red-300]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-                [class.focus:ring-red-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-              <div id="password-help" class="sr-only">Enter your account password</div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between px-1">
+              <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Password</label>
+              <a href="#" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Forgot Password?</a>
             </div>
-            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-              <p class="mt-2 text-sm text-red-600" id="password-error">
-                Password is required
-              </p>
-            }
+            <input type="password" formControlName="password" placeholder="••••••••" class="input-premium">
           </div>
+        </div>
 
-        <!-- Submit button -->
-        <button type="submit" [disabled]="loginForm.invalid || isLoading()"
-          class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-          @if (isLoading()) {
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span class="flex items-center gap-2">
-              <span>Signing in</span>
-              <span class="w-1 h-1 bg-white/50 rounded-full animate-pulse"></span>
-              <span class="w-1 h-1 bg-white/50 rounded-full animate-pulse delay-100"></span>
-              <span class="w-1 h-1 bg-white/50 rounded-full animate-pulse delay-200"></span>
-            </span>
-          } @else {
-            <span class="flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-              </svg>
-              <span>Sign In to Your Account</span>
-            </span>
-          }
+        <button type="submit" [disabled]="loginForm.invalid || isLoading()" class="w-full btn-primary py-5 text-lg shadow-2xl shadow-slate-900/10 active:scale-95 transition-all">
+          @if (isLoading()) { <div class="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
+          @else { Sign In }
         </button>
       </form>
 
-      <!-- Footer links -->
-      <div class="mt-8 pt-6 border-t border-gray-100">
-        <p class="text-center text-sm text-gray-600">
-          Don't have an account?
-          <a routerLink="/register" class="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
-            Create one now
-          </a>
-        </p>
-        <div class="mt-4 flex justify-center space-x-6 text-xs text-gray-500">
-          <a href="#" class="hover:text-gray-700 transition-colors">Privacy Policy</a>
-          <span>•</span>
-          <a href="#" class="hover:text-gray-700 transition-colors">Security</a>
-          <span>•</span>
-          <a href="#" class="hover:text-gray-700 transition-colors">Support</a>
-        </div>
+      <!-- Footer -->
+      <div class="text-center lg:text-left pt-6 border-t border-slate-200">
+        <p class="text-slate-400 font-medium">Don't have an elite account? <a routerLink="/register" class="text-slate-900 font-bold hover:text-blue-600 transition-colors">Apply Now</a></p>
       </div>
-    </div>
 
-    <!-- Trust indicators -->
-    <div class="text-center text-xs text-gray-400 mt-4">
-      <p>🔒 SSL Encrypted • 🛡️ 24/7 Monitoring • 💰 FDIC Insured</p>
+      <!-- Compliance -->
+      <div class="flex justify-center lg:justify-start gap-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+        <span>FDIC Insured</span>
+        <span>256-bit AES</span>
+        <span>Secure Session</span>
+      </div>
     </div>
   </div>
 </div>

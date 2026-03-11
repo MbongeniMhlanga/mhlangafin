@@ -8,79 +8,90 @@ import { CommonModule, DecimalPipe } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (visible()) {
-      <!-- Backdrop -->
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
-           role="dialog" aria-modal="true" [attr.aria-labelledby]="'modal-title'">
+      <div class="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-8"
+           role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-500" (click)="close.emit()"></div>
 
-        <!-- Dark overlay -->
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" (click)="close.emit()"></div>
+        <!-- Modal Card -->
+        <div class="relative bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] max-w-md w-full overflow-hidden animate-slide-up border border-slate-100">
+          
+          <!-- Top Accent Bar -->
+          <div class="h-2 w-full bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-400"></div>
 
-        <!-- Modal card -->
-        <div class="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl max-w-md w-full p-8 text-center animate-in border border-white/20">
-
-          <!-- Success check circle -->
-          <div class="mx-auto mb-6 flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-lg">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-
-          <h2 id="modal-title" class="text-2xl font-bold text-gray-900 mb-2">Transfer Successful! 🎉</h2>
-          <p class="text-gray-600 text-sm mb-6">Your funds have been securely transferred.</p>
-
-          <!-- Transaction detail -->
-          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl px-6 py-4 mb-6 text-left space-y-3">
-            <div class="flex justify-between items-center py-2 border-b border-emerald-100">
-              <span class="text-sm text-gray-600 font-medium">Transaction ID</span>
-              <span class="text-sm font-mono font-semibold text-gray-900">#{{ transactionId() }}</span>
+          <div class="p-10 pt-12 text-center">
+            <!-- Animated Success Icon -->
+            <div class="mx-auto mb-8 relative">
+              <div class="absolute inset-0 bg-emerald-100 rounded-full animate-pulse scale-150 opacity-20"></div>
+              <div class="relative w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
             </div>
-            <div class="flex justify-between items-center py-2 border-b border-emerald-100">
-              <span class="text-sm text-gray-600 font-medium">Amount</span>
-              <span class="text-lg font-bold text-gray-900">R{{ amount() | number:'1.2-2' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-2 border-b border-emerald-100">
-              <span class="text-sm text-gray-600 font-medium">To Account</span>
-              <span class="text-sm font-mono text-gray-800">{{ toAccount() }}</span>
-            </div>
-            <div class="flex justify-between items-center py-2">
-              <span class="text-sm text-gray-600 font-medium">Status</span>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                Completed
-              </span>
-            </div>
-          </div>
 
-          <!-- Action buttons -->
-          <div class="flex flex-col gap-3">
-            <button (click)="close.emit()"
-              class="w-full py-3 px-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
-              Back to Dashboard
-            </button>
-            <button (click)="newTransfer.emit()"
-              class="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
-              Make Another Transfer
-            </button>
-          </div>
+            <h2 id="modal-title" class="text-3xl font-black text-slate-900 tracking-tight mb-3">Payment Successful</h2>
+            <p class="text-slate-500 font-medium mb-10 leading-relaxed">Your transaction has been authorized and processed instantly.</p>
 
-          <!-- Security note -->
-          <div class="mt-6 flex items-center justify-center space-x-2 text-xs text-gray-500">
-            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-            </svg>
-            <span>Transaction secured with bank-level encryption</span>
+            <!-- Transaction Details Card -->
+            <div class="bg-slate-50 rounded-[2rem] p-8 mb-10 space-y-5 text-left border border-slate-100">
+              <div class="flex justify-between items-center group">
+                <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Transaction ID</span>
+                <span class="text-xs font-black text-slate-900 font-mono tracking-tighter">#{{ transactionId() || '6512-8921-X' }}</span>
+              </div>
+              
+              <div class="flex justify-between items-end">
+                <div>
+                  <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Amount Paid</span>
+                  <span class="text-3xl font-black text-slate-900 tracking-tighter">R{{ amount() | number:'1.2-2' }}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">To Account</span>
+                  <span class="text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-100">{{ toAccount() }}</span>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-slate-200/60 flex items-center justify-between">
+                <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Status</span>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Authorized</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-4">
+              <button (click)="newTransfer.emit()"
+                class="w-full btn-primary py-5 text-lg shadow-xl shadow-blue-500/10">
+                Make Another Payment
+              </button>
+              <button (click)="close.emit()"
+                class="w-full btn-secondary py-5 text-lg hover:bg-slate-50 border-slate-200">
+                Return to Dashboard
+              </button>
+            </div>
+
+            <!-- Security Footer -->
+            <div class="mt-10 flex items-center justify-center gap-3 py-4 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+              <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M2.166 4.9L10 1.55l7.834 3.35a1 1 0 01.666.945V10c0 5.825-4.139 10.285-8.5 11.5-4.361-1.215-8.5-5.675-8.5-11.5V5.845a1 1 0 01.666-.945zM10 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">End-to-End Encrypted</span>
+            </div>
           </div>
         </div>
       </div>
     }
   `,
   styles: [`
-    @keyframes modal-in {
-      from { opacity: 0; transform: scale(0.95) translateY(12px); }
-      to   { opacity: 1; transform: scale(1)    translateY(0); }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .animate-in {
-      animation: modal-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    .animate-slide-up {
+      animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   `]
 })

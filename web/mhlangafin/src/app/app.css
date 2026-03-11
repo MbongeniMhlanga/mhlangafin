@@ -1,159 +1,124 @@
-/* Global Banking App Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap');
 
-/* Custom Color Variables for Banking Theme */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --bank-blue: #2563eb;
-  --bank-indigo: #4f46e5;
-  --bank-emerald: #10b981;
-  --bank-teal: #14b8a6;
-  --bank-gray-50: #f9fafb;
-  --bank-gray-100: #f3f4f6;
-  --bank-gray-200: #e5e7eb;
-  --bank-gray-300: #d1d5db;
-  --bank-gray-400: #9ca3af;
-  --bank-gray-500: #6b7280;
-  --bank-gray-600: #4b5563;
-  --bank-gray-700: #374151;
-  --bank-gray-800: #1f2937;
-  --bank-gray-900: #111827;
+  --primary: #0f172a;
+  --secondary: #2563eb;
+  --accent: #f59e0b;
+  --bg-main: #f8fafc;
 }
 
-/* Enhanced Typography for Banking Professionalism */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--primary);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Professional Banking Button Styles */
-.btn-banking {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Outfit', sans-serif;
 }
 
-.btn-banking:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-}
+@layer components {
 
-.btn-banking:active {
-  transform: translateY(0) !important;
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Enhanced Form Input Styles */
-.input-banking {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border-width: 2px !important;
-}
-
-.input-banking:focus {
-  border-color: var(--bank-blue) !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* Card Enhancement Styles */
-.card-banking {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.card-banking:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-}
-
-/* Loading Animation Enhancements */
-.loading-pulse {
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+  /* Premium Inputs for Banking Context */
+  .input-premium {
+    @apply w-full px-6 py-4 bg-white border border-slate-200 rounded-[1.25rem] text-slate-900 font-medium transition-all duration-300;
   }
-  50% {
-    opacity: 0.5;
+
+  .input-premium:focus {
+    @apply border-slate-900 ring-4 ring-slate-900/5 outline-none bg-white;
+  }
+
+  .input-premium::placeholder {
+    @apply text-slate-300 font-bold uppercase tracking-widest text-[10px];
+  }
+
+  /* Banking Primary Action Buttons */
+  .btn-primary {
+    @apply bg-slate-900 text-white font-bold rounded-2xl px-8 py-4 transition-all duration-300 hover:bg-blue-600 hover:shadow-2xl hover:shadow-blue-500/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-slate-900 border border-slate-200 font-bold rounded-2xl px-8 py-4 transition-all duration-300 hover:border-slate-900 active:scale-95;
+  }
+
+  .btn-banking {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-bold transition-all duration-300 transform active:scale-95 disabled:opacity-50;
+  }
+
+  /* Modern Card System */
+  .card-elite {
+    @apply bg-white border border-slate-200 rounded-[2.5rem] shadow-sm transition-all duration-500;
+  }
+
+  .card-elite:hover {
+    @apply shadow-2xl shadow-slate-900/5 border-slate-300;
   }
 }
 
-/* Smooth Page Transitions */
-.page-enter {
-  animation: fadeIn 0.5s ease-out !important;
-}
-
-@keyframes fadeIn {
+/* Custom Animations */
+@keyframes slideUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Responsive Design Enhancements */
-@media (max-width: 768px) {
-  .mobile-card-padding {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
   }
-  
-  .mobile-text-center {
-    text-align: center !important;
+
+  25% {
+    transform: translateX(-5px);
   }
-  
-  .mobile-space-y-4 > * + * {
-    margin-top: 1rem !important;
+
+  75% {
+    transform: translateX(5px);
   }
 }
 
-/* Accessibility Enhancements */
-.sr-only-focusable:focus {
-  position: static !important;
-  width: auto !important;
-  height: auto !important;
-  padding: inherit !important;
-  margin: inherit !important;
-  overflow: visible !important;
-  clip: auto !important;
-  white-space: inherit !important;
+.animate-slide-up {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-  .bg-white {
-    border: 2px solid var(--bank-gray-800) !important;
-  }
-  
-  .border-gray-200 {
-    border-color: var(--bank-gray-800) !important;
-  }
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
 }
 
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
   }
 }
 
-/* Print Styles */
-@media print {
-  .hidden-print {
-    display: none !important;
-  }
-  
-  body {
-    background: white !important;
-  }
-  
-  .card-banking {
-    box-shadow: none !important;
-    border: 1px solid #ccc !important;
-  }
+/* Glass effect for overlays */
+.glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-white/20;
 }
