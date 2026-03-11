@@ -15,6 +15,7 @@ export class DigitalCardPage implements OnInit {
   private authService = inject(AuthService);
 
   accounts = signal<any[]>([]);
+  mainAccount = signal<any>(null);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
   showCardDetails = signal<boolean>(false);
@@ -28,6 +29,9 @@ export class DigitalCardPage implements OnInit {
     this.api.getMyAccounts().subscribe({
       next: (data) => {
         this.accounts.set(data);
+        const main = data.find(a => a.isMain);
+        if (main) this.mainAccount.set(main);
+        
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -42,11 +46,21 @@ export class DigitalCardPage implements OnInit {
   }
 
   getPrimaryAccountNumber(): string {
-    const accs = this.accounts();
-    if (accs.length > 0) {
-      return accs[0].accountNumber;
+    const main = this.mainAccount();
+    if (main) {
+      return main.accountNumber;
     }
     return 'FN-PENDING-CARD';
+  }
+
+  getExpiryDate(): string {
+    const main = this.mainAccount();
+    return main?.expiryDate || 'MM / YY';
+  }
+
+  getCVV(): string {
+    const main = this.mainAccount();
+    return main?.cvv || '***';
   }
 
   getUserName(): string {

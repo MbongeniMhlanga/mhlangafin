@@ -8,4 +8,6 @@ public class AccountDto
     public decimal Balance { get; set; }
     public bool IsMain { get; set; }
     public string Status { get; set; } = null!;
+    public string? ExpiryDate { get; set; }
+    public string? CVV { get; set; }
 }

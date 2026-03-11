@@ -172,9 +172,17 @@
                                             }
                                         </p>
                                     </div>
-                                    <div class="text-right">
-                                        <p class="text-[9px] font-bold uppercase tracking-[0.4em] opacity-30 mb-1">Expires</p>
-                                        <p class="text-xl font-bold tracking-widest">12 / 30</p>
+                                    <div class="text-right flex gap-8">
+                                        <div class="text-left">
+                                            <p class="text-[9px] font-bold uppercase tracking-[0.4em] opacity-30 mb-1">Expiry</p>
+                                            <p class="text-xl font-bold tracking-widest">{{ getExpiryDate() }}</p>
+                                        </div>
+                                        @if (showCardDetails()) {
+                                        <div class="text-left animate-slide-up">
+                                            <p class="text-[9px] font-bold uppercase tracking-[0.4em] opacity-30 mb-1">CVV</p>
+                                            <p class="text-xl font-bold tracking-widest">{{ getCVV() }}</p>
+                                        </div>
+                                        }
                                     </div>
                                 </div>
                             </div>

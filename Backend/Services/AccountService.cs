@@ -68,6 +68,8 @@ public class AccountService : IAccountService
         AccountNumber = a.IsMain ? a.AccountNumber : "Savings Pocket",
         Balance = a.Balance,
         IsMain = a.IsMain,
-        Status = a.Status
+        Status = a.Status,
+        ExpiryDate = a.ExpiryDate,
+        CVV = a.CVV
     };
 }

@@ -16,6 +16,10 @@ public class Account
     public int UserId { get; set; }
     public bool IsMain { get; set; }
     public string Status { get; set; } = "Active";
+    
+    // Digital Card Details (populated for Main Account)
+    public string? ExpiryDate { get; set; }
+    public string? CVV { get; set; }
 
     public User? User { get; set; }
 

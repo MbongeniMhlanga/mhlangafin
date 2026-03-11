@@ -11,12 +11,14 @@ namespace Backend.Services;
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _users;
+    private readonly IAccountRepository _accounts;
     private readonly IConfiguration _config;
 
-    public AuthService(IUserRepository users, IConfiguration config)
+    public AuthService(IUserRepository users, IAccountRepository accounts, IConfiguration _config)
     {
         _users = users;
-        _config = config;
+        _accounts = accounts;
+        this._config = _config;
     }
 
     public async Task<LoginResponse?> AuthenticateAsync(LoginRequest request)
@@ -69,6 +71,25 @@ public class AuthService : IAuthService
 
         await _users.AddAsync(user);
         await _users.SaveChangesAsync();
+
+        // Automatically create the Main Account for the new user with R1,000,000 balance
+        var expiryDate = DateTime.UtcNow.AddYears(5).ToString("MM/yy");
+        var cvv = Random.Shared.Next(100, 999).ToString();
+
+        var mainAccount = new Backend.Models.Entities.Account
+        {
+            AccountName = "Main Account",
+            AccountNumber = $"MFN{DateTime.UtcNow:yyyyMM}{Random.Shared.Next(10000, 99999)}",
+            Balance = 1000000m,
+            UserId = user.Id,
+            IsMain = true,
+            Status = "Active",
+            ExpiryDate = expiryDate,
+            CVV = cvv
+        };
+        await _accounts.AddAsync(mainAccount);
+        await _accounts.SaveChangesAsync();
+
         return true;
     }
 }
