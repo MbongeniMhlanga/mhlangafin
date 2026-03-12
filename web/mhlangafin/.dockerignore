@@ -1,0 +1,17 @@
+node_modules/
+.angular/
+dist/
+.claude/
+.cursor/
+.gemini/
+.github/
+.vscode/
+.windsurf/
+.editorconfig
+.gitignore
+.prettierrc
+Dockerfile
+.dockerignore
+package-lock.json
+README.md
+AGENTS.md

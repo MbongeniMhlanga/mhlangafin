@@ -18,7 +18,7 @@ export class Api {
     return this.http.post<any>(`${this.apiUrl}/Accounts`, payload);
   }
 
-  transfer(payload: { fromAccountNumber: string, toAccountNumber: string, amount: number }): Observable<any> {
+  transfer(payload: { fromAccountNumber: string, toAccountNumber: string, amount: number, beneficiaryReference?: string, senderReference?: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Transactions/transfer`, payload);
   }
 

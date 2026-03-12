@@ -15,6 +15,8 @@ public class Transaction
     public decimal Amount { get; set; }
 
     public string Type { get; set; } = "Transfer";
+    public string? BeneficiaryReference { get; set; }
+    public string? SenderReference { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
     public Account? FromAccount { get; set; }

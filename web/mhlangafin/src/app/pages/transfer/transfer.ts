@@ -38,7 +38,9 @@ export class Transfer implements OnInit {
   transferForm = this.fb.nonNullable.group({
     fromAccountNumber: ['', [Validators.required]],
     toAccountNumber: ['', [Validators.required]],
-    amount: [0, [Validators.required, Validators.min(0.01)]]
+    amount: [0, [Validators.required, Validators.min(0.01)]],
+    beneficiaryReference: ['', [Validators.required]],
+    senderReference: ['', [Validators.required]]
   });
 
   beneficiaryForm = this.fb.nonNullable.group({
@@ -76,7 +78,11 @@ export class Transfer implements OnInit {
   }
 
   selectBeneficiary(ben: any) {
-    this.transferForm.patchValue({ toAccountNumber: ben.accountNumber });
+    this.transferForm.patchValue({ 
+      toAccountNumber: ben.accountNumber,
+      senderReference: ben.name,
+      beneficiaryReference: this.authService.getUserInitialsAndSurname()
+    });
   }
 
   saveBeneficiary() {
@@ -100,7 +106,7 @@ export class Transfer implements OnInit {
   onSubmit() {
     if (this.transferForm.invalid) return;
 
-    const { fromAccountNumber, toAccountNumber, amount } = this.transferForm.getRawValue();
+    const { fromAccountNumber, toAccountNumber, amount, beneficiaryReference, senderReference } = this.transferForm.getRawValue();
 
     if (fromAccountNumber === toAccountNumber) {
       this.errorMessage.set('Source and destination accounts cannot be the same.');
@@ -110,7 +116,13 @@ export class Transfer implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.api.transfer({ fromAccountNumber, toAccountNumber, amount: Number(amount) }).subscribe({
+    this.api.transfer({ 
+      fromAccountNumber, 
+      toAccountNumber, 
+      amount: Number(amount),
+      beneficiaryReference,
+      senderReference
+    }).subscribe({
       next: (res) => {
         this.isLoading.set(false);
 

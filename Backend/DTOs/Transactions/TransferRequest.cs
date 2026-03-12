@@ -12,4 +12,7 @@ public class TransferRequest
 
     [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Transfer amount must be greater than zero.")]
     public decimal Amount { get; set; }
+    
+    public string? BeneficiaryReference { get; set; }
+    public string? SenderReference { get; set; }
 }

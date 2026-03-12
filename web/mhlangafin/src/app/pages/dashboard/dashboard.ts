@@ -38,7 +38,8 @@ export class Dashboard implements OnInit {
   showInternalTransferModal = signal<boolean>(false);
   isInternalTransferLoading = signal<boolean>(false);
   internalTransferError = signal<string | null>(null);
-
+  activeModal = signal<'history' | 'statement' | null>(null);
+ 
   // Transaction History State
   selectedAccount = signal<any>(null);
   transactionHistory = signal<any>(null);
@@ -140,7 +141,8 @@ export class Dashboard implements OnInit {
     this.transactionHistory.set(null);
     this.historyError.set(null);
     this.isHistoryLoading.set(true);
-
+    this.activeModal.set('history');
+ 
     this.api.getTransactionHistory(account.id.toString(), undefined, undefined, 1, 20).subscribe({
       next: (data) => {
         console.log('Transaction history loaded:', data);
@@ -157,6 +159,7 @@ export class Dashboard implements OnInit {
 
   closeTransactionHistory() {
     this.selectedAccount.set(null);
+    this.activeModal.set(null);
     this.transactionHistory.set(null);
     this.historyError.set(null);
   }
@@ -213,12 +216,14 @@ export class Dashboard implements OnInit {
   openStatementModal(account: any) {
     console.log('Opening statement modal for:', account);
     this.selectedAccount.set(account);
+    this.activeModal.set('statement');
     this.statementForm.reset();
     this.statementError.set(null);
   }
-
+ 
   closeStatementModal() {
     this.selectedAccount.set(null);
+    this.activeModal.set(null);
     this.statementForm.reset();
     this.statementError.set(null);
   }

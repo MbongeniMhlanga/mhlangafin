@@ -20,5 +20,7 @@ public class TransactionDto
     public string? ToAccountNumber { get; set; }
     public decimal BalanceAfter { get; set; }
     public string? Description { get; set; }
+    public string? BeneficiaryReference { get; set; }
+    public string? SenderReference { get; set; }
     public DateTime Timestamp { get; set; }
 }

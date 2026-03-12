@@ -169,8 +169,29 @@
           <!-- Payment Amount -->
           <div class="space-y-4">
             <div class="flex items-center justify-between px-1">
+              <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Payment Details</label>
+              <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Step 3 of 4</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Beneficiary Reference</label>
+                <input type="text" formControlName="beneficiaryReference" placeholder="e.g. INV-001" class="input-premium">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest pl-1 italic">What the recipient sees</p>
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">My Statement Desc</label>
+                <input type="text" formControlName="senderReference" placeholder="e.g. Rent Payment" class="input-premium">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest pl-1 italic">What you see on statement</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Amount -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between px-1">
               <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Payment Amount</label>
-              <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Step 3 of 3</span>
+              <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Step 4 of 4</span>
             </div>
             <div class="relative group">
               <span

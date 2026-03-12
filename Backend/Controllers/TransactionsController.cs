@@ -192,11 +192,11 @@ public class TransactionsController : ControllerBase
 
                         foreach (var transaction in statement.Transactions)
                         {
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.Timestamp.ToString("dd MMM yyyy HH:mm"));
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.Type);
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.Amount.ToString("C")).AlignRight();
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text($"{transaction.FromAccountNumber} → {transaction.ToAccountNumber}");
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.BalanceAfter.ToString("C")).AlignRight();
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.Timestamp.ToString("dd MMM yyyy HH:mm")).FontSize(10);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.Type).FontSize(10);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.Amount.ToString("C")).AlignRight().FontSize(10);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.Description ?? $"{transaction.FromAccountNumber} → {transaction.ToAccountNumber}").FontSize(10);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Medium).Padding(5).Text(transaction.BalanceAfter.ToString("C")).AlignRight().FontSize(10);
                         }
                     });
 

@@ -52,6 +52,8 @@ public class TransactionService : ITransactionService
                 ToAccountId = to.Id,
                 Amount = request.Amount,
                 Type = "Transfer",
+                BeneficiaryReference = request.BeneficiaryReference,
+                SenderReference = request.SenderReference,
                 Timestamp = DateTime.UtcNow
             };
 
@@ -106,6 +108,8 @@ public class TransactionService : ITransactionService
                 ToAccountId = to.Id,
                 Amount = request.Amount,
                 Type = "Internal Transfer",
+                SenderReference = $"To {to.AccountName}",
+                BeneficiaryReference = $"From {from.AccountName}",
                 Timestamp = DateTime.UtcNow
             };
 
@@ -164,7 +168,11 @@ public class TransactionService : ITransactionService
                 Amount = t.Amount,
                 FromAccountNumber = t.FromAccount!.AccountNumber,
                 ToAccountNumber = t.ToAccount!.AccountNumber,
-                Description = $"{t.Type} - {t.Amount:C}",
+                Description = t.FromAccountId == account.Id 
+                    ? (t.SenderReference ?? $"{t.Type} - {t.Amount:C}") 
+                    : (t.BeneficiaryReference ?? $"{t.Type} - {t.Amount:C}"),
+                BeneficiaryReference = t.BeneficiaryReference,
+                SenderReference = t.SenderReference,
                 Timestamp = t.Timestamp
             })
             .ToListAsync();
@@ -208,7 +216,11 @@ public class TransactionService : ITransactionService
                 Amount = t.Amount,
                 FromAccountNumber = t.FromAccount!.AccountNumber,
                 ToAccountNumber = t.ToAccount!.AccountNumber,
-                Description = $"{t.Type} - {t.Amount:C}",
+                Description = t.FromAccountId == account.Id 
+                    ? (t.SenderReference ?? $"{t.Type} - {t.Amount:C}") 
+                    : (t.BeneficiaryReference ?? $"{t.Type} - {t.Amount:C}"),
+                BeneficiaryReference = t.BeneficiaryReference,
+                SenderReference = t.SenderReference,
                 Timestamp = t.Timestamp
             })
             .ToListAsync();
@@ -226,7 +238,7 @@ public class TransactionService : ITransactionService
         return new StatementResponse
         {
             AccountNumber = account.AccountNumber,
-            AccountHolderName = account.User.FullName,
+            AccountHolderName = account.User?.FullName ?? "Unknown",
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             OpeningBalance = openingBalance,
