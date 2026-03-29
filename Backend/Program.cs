@@ -16,7 +16,7 @@ var configuration = builder.Configuration;
 var conn = configuration.GetConnectionString("DefaultConnection")
            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(conn));
+    options.UseMySql(conn, ServerVersion.AutoDetect(conn)));
 
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();

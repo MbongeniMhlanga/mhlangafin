@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,7 +13,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private apiUrl = 'http://localhost:5075/api/Auth';
+  private apiUrl = `${environment.apiUrl}/Auth`;
 
   // Use signal for auth state
   token = signal<string | null>(localStorage.getItem('token'));

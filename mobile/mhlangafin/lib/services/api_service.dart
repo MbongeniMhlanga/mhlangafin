@@ -22,7 +22,6 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       final errorBody = jsonDecode(response.body);
-      // Extract specific error details
       if (errorBody['errors'] != null) {
         final errors = errorBody['errors'];
         if (errors['Email'] != null && errors['Email'].isNotEmpty) {
@@ -57,7 +56,6 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       final errorBody = jsonDecode(response.body);
-      // Extract specific error details
       if (errorBody['errors'] != null) {
         final errors = errorBody['errors'];
         if (errors['Email'] != null && errors['Email'].isNotEmpty) {
@@ -97,7 +95,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> createAccount(String token, String accountName, double initialBalance) async {
+  Future<Map<String, dynamic>> createAccount(String token, int userId, String accountName, double initialBalance) async {
     final response = await http.post(
       Uri.parse('$baseUrl/accounts'),
       headers: {
@@ -105,6 +103,7 @@ class ApiService {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
+        'userId': userId,
         'accountName': accountName,
         'initialBalance': initialBalance,
       }),
@@ -138,10 +137,48 @@ class ApiService {
     }
   }
 
-  // Transaction endpoints
-  Future<Map<String, dynamic>> getTransactionHistory(String token, String accountId, int page, int pageSize) async {
+  // Beneficiary endpoints
+  Future<List<dynamic>> getBeneficiaries(String token) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/transactions/history/$accountId?page=$page&pageSize=$pageSize'),
+      Uri.parse('$baseUrl/beneficiaries'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load beneficiaries: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> addBeneficiary(String token, String name, String accountNumber, String? bankName) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/beneficiaries'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'name': name,
+        'accountNumber': accountNumber,
+        'bankName': bankName,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to add beneficiary: ${response.statusCode}');
+    }
+  }
+
+  // Transaction endpoints
+  Future<Map<String, dynamic>> getTransactionHistory(String token, String accountNumber, int page, int pageSize) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/transactions/history?accountNumber=$accountNumber&page=$page&pageSize=$pageSize'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -155,12 +192,18 @@ class ApiService {
     }
   }
 
-  Future<Uint8List> downloadStatement(String token, String accountId, DateTime startDate, DateTime endDate, String format) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/transactions/statement/$accountId?startDate=${startDate.toIso8601String()}&endDate=${endDate.toIso8601String()}&format=$format'),
+  Future<Uint8List> downloadStatement(String token, String accountNumber, DateTime startDate, DateTime endDate, String format) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/transactions/statement/download?format=$format'),
       headers: {
         'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
       },
+      body: jsonEncode({
+        'accountNumber': accountNumber,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      }),
     );
 
     if (response.statusCode == 200) {
@@ -171,23 +214,27 @@ class ApiService {
   }
 
   // Transfer endpoints
-  Future<Map<String, dynamic>> makeTransfer(String token, double amount, String beneficiaryReference) async {
+  Future<Map<String, dynamic>> makeTransfer(String token, String fromAccountNumber, String toAccountNumber, double amount, String benRef, String senderRef) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/transfers'),
+      Uri.parse('$baseUrl/transactions/transfer'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
+        'fromAccountNumber': fromAccountNumber,
+        'toAccountNumber': toAccountNumber,
         'amount': amount,
-        'beneficiaryReference': beneficiaryReference,
+        'beneficiaryReference': benRef,
+        'senderReference': senderRef,
       }),
     );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Transfer failed: ${response.statusCode}');
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['message'] ?? 'Transfer failed: ${response.statusCode}');
     }
   }
 }
