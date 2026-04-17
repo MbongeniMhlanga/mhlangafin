@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:open_file_plus/open_file_plus.dart';
+import 'package:open_filex/open_filex.dart';
 import '../services/api_service.dart';
 import '../models/account.dart';
 import '../utils/jwt_helper.dart';
@@ -321,7 +321,7 @@ class _DashboardPageState extends State<DashboardPage> {
           final file = File(filePath);
           await file.writeAsBytes(result as List<int>);
           
-          await OpenFile.open(filePath);
+          await OpenFilex.open(filePath);
           
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
