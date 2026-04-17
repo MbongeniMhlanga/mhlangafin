@@ -1,76 +1,247 @@
-<div class="admin-transactions">
-  <h1>Review Transactions</h1>
-
-  <div class="actions">
-    <a routerLink="/admin" class="back-button">← Back to Admin Dashboard</a>
-    <div class="filters">
-      <label>Filter by status:</label>
-      <select (change)="onFilterChange($event)" [value]="filterStatus()">
-        <option value="">All</option>
-        <option value="PendingApproval">Pending Approval</option>
-        <option value="Completed">Completed</option>
-        <option value="Rejected">Rejected</option>
-      </select>
-      <button (click)="loadTransactions()" class="refresh-button">Refresh</button>
-    </div>
-  </div>
-
-  <div class="loading" *ngIf="isLoading">
-    <p>Loading transactions...</p>
-  </div>
-
-  <div class="error" *ngIf="error()">
-    <p>{{ error() }}</p>
-    <button (click)="loadTransactions()">Retry</button>
-  </div>
-
-  <div class="transactions-list" *ngIf="!isLoading && !error()">
-    <div class="transaction-card" *ngFor="let transaction of transactions()">
-      <div class="transaction-header">
-        <div class="transaction-info">
-          <h3>Transaction #{{ transaction.id }}</h3>
-          <p class="amount">Amount: ${{ transaction.amount.toFixed(2) }}</p>
-          <p class="type">Type: {{ transaction.type }}</p>
-          <p class="status" [class]="'status-' + transaction.status.toLowerCase()">
-            Status: {{ transaction.status }}
-          </p>
+<div class="min-h-screen bg-[#f8fafc] text-slate-900 font-sans">
+  <!-- Top Navigation -->
+  <nav class="bg-white border-b border-slate-200 sticky top-0 z-[100] shadow-sm backdrop-blur-md bg-white/90">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+            </path>
+          </svg>
         </div>
-        <div class="transaction-date">
-          {{ transaction.createdAt | date:'short' }}
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-slate-900">MhlangaFin Admin</h1>
+          <p class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Transaction Review</p>
         </div>
       </div>
 
-      <div class="transaction-details">
-        <div class="detail-row">
-          <span class="label">From:</span>
-          <span>{{ transaction.fromAccountNumber || 'N/A' }}</span>
+      <div class="flex items-center gap-8">
+        <div class="hidden md:flex items-center gap-6">
+          <a routerLink="/dashboard" class="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">User Dashboard</a>
+          <a routerLink="/admin" class="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Admin Dashboard</a>
+          <a routerLink="/admin/users" class="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Manage Users</a>
+          <a routerLink="/admin/transactions" class="text-sm font-bold text-amber-600 hover:text-amber-800 transition-colors border-b-2 border-amber-600 py-1">Review Transactions</a>
         </div>
-        <div class="detail-row">
-          <span class="label">To:</span>
-          <span>{{ transaction.toAccountNumber || 'N/A' }}</span>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <button (click)="logout()" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-red-600 transition-colors">
+          <span>Logout</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6 lg:p-10 space-y-10 animate-slide-up">
+    <section class="space-y-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-3xl font-black text-slate-900 tracking-tight">Transaction Review</h2>
+          <p class="text-slate-500 mt-2">Approve or reject pending transactions</p>
         </div>
-        <div class="detail-row" *ngIf="transaction.senderReference">
-          <span class="label">Sender Reference:</span>
-          <span>{{ transaction.senderReference }}</span>
-        </div>
-        <div class="detail-row" *ngIf="transaction.beneficiaryReference">
-          <span class="label">Beneficiary Reference:</span>
-          <span>{{ transaction.beneficiaryReference }}</span>
-        </div>
-        <div class="detail-row" *ngIf="transaction.note">
-          <span class="label">Note:</span>
-          <span>{{ transaction.note }}</span>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-4 bg-slate-50 rounded-xl p-3">
+            <label class="text-sm font-bold text-slate-500">Filter by status:</label>
+            <select (change)="onFilterChange($event)" [value]="filterStatus()" class="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold">
+              <option value="">All Transactions</option>
+              <option value="PendingApproval">Pending Approval</option>
+              <option value="Completed">Completed</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <button (click)="loadTransactions()" class="btn-secondary py-3 px-6 text-sm">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Refresh
+          </button>
+          <a routerLink="/admin" class="btn-secondary py-3 px-6 text-sm">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Dashboard
+          </a>
         </div>
       </div>
 
-      <div class="transaction-actions" *ngIf="transaction.status === 'PendingApproval'">
-        <button (click)="approveTransaction(transaction)" class="action-button approve">Approve</button>
-        <button (click)="rejectTransaction(transaction)" class="action-button reject">Reject</button>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="card-elite p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Transactions</p>
+              <p class="text-2xl font-black text-slate-900">{{ transactions().length || 0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-elite p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending Review</p>
+              <p class="text-2xl font-black text-amber-600">{{ transactions().filter(t => t.status === 'PendingApproval').length || 0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-amber-600 rounded-xl flex items-center justify-center text-white">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-elite p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Completed</p>
+              <p class="text-2xl font-black text-emerald-600">{{ transactions().filter(t => t.status === 'Completed').length || 0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center text-white">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-elite p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Rejected</p>
+              <p class="text-2xl font-black text-red-600">{{ transactions().filter(t => t.status === 'Rejected').length || 0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center text-white">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="no-transactions" *ngIf="transactions().length === 0">
-      <p>No transactions found.</p>
-    </div>
+    <section class="card-elite p-8">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-black text-slate-900">Transaction Review Queue</h3>
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-slate-500">Showing {{ transactions().length }} transactions</span>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+      <div class="space-y-6">
+        @for (i of [1,2,3,4,5]; track i) {
+        <div class="h-24 bg-slate-50 rounded-xl animate-pulse"></div>
+        }
+      </div>
+      } @else if (transactions().length === 0) {
+      <div class="text-center py-12 bg-slate-50 rounded-xl border border-slate-100">
+        <svg class="w-12 h-12 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+        </svg>
+        <p class="text-slate-500 font-bold">No transactions found</p>
+      </div>
+      } @else {
+      <div class="space-y-6">
+        @for (transaction of transactions(); track transaction.id) {
+        <div class="bg-white border border-slate-100 rounded-xl p-6 hover:shadow-lg transition-all group">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                {{ transaction.type === 'Transfer' ? 'TR' : 'DP' }}
+              </div>
+              <div>
+                <p class="font-black text-slate-900 text-lg">Transaction #{{ transaction.id }}</p>
+                <p class="text-sm text-slate-500">{{ transaction.createdAt | date:'medium' }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="px-3 py-1 rounded-full text-xs font-bold" 
+                [class]="transaction.status === 'PendingApproval' ? 'bg-amber-100 text-amber-700' : 
+                       transaction.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 
+                       'bg-red-100 text-red-700'">
+                {{ transaction.status }}
+              </span>
+              <p class="text-2xl font-black text-slate-900">R{{ transaction.amount | number:'1.2-2' }}</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">From Account</span>
+                <span class="font-bold text-slate-900">{{ transaction.fromAccountNumber || 'N/A' }}</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">To Account</span>
+                <span class="font-bold text-slate-900">{{ transaction.toAccountNumber || 'N/A' }}</span>
+              </div>
+            </div>
+            <div class="space-y-3">
+              @if (transaction.senderReference) {
+              <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sender Ref</span>
+                <span class="font-bold text-slate-900">{{ transaction.senderReference }}</span>
+              </div>
+              }
+              @if (transaction.beneficiaryReference) {
+              <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Beneficiary Ref</span>
+                <span class="font-bold text-slate-900">{{ transaction.beneficiaryReference }}</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          @if (transaction.status === 'PendingApproval') {
+          <div class="mt-6 flex gap-4">
+            <button (click)="approveTransaction(transaction)" 
+              class="flex-1 btn-primary py-3 text-sm shadow-xl shadow-slate-900/10 active:scale-95 transition-all">
+              <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Approve Transaction
+            </button>
+            <button (click)="rejectTransaction(transaction)" 
+              class="flex-1 bg-red-100 text-red-700 hover:bg-red-200 font-bold py-3 px-6 rounded-xl transition-all active:scale-95">
+              <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              Reject Transaction
+            </button>
+          </div>
+          } @else {
+          <div class="mt-6 flex items-center gap-4 text-sm text-slate-500">
+            <span>Reviewed by Admin {{ transaction.reviewedByAdminId || 'N/A' }}</span>
+            @if (transaction.reviewedAt) {
+            <span>•</span>
+            <span>{{ transaction.reviewedAt | date:'medium' }}</span>
+            }
+          </div>
+          @if (transaction.reviewNote) {
+          <div class="mt-2 p-3 bg-slate-50 rounded-lg">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Review Note</span>
+            <p class="mt-1 font-bold text-slate-900">{{ transaction.reviewNote }}</p>
+          </div>
+          }
+          }
+        </div>
+        }
+      </div>
+      }
+    </section>
+  </main>
+</div>
+
+@if (isLoading()) {
+<div class="fixed inset-0 z-[200] bg-white/80 backdrop-blur-md flex items-center justify-center">
+  <div class="text-center">
+    <div class="w-16 h-16 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mx-auto mb-6"></div>
+    <p class="text-lg font-bold text-slate-900 mb-2">Loading Transactions</p>
+    <p class="text-slate-500">Please wait while we retrieve transaction data...</p>
   </div>
 </div>
+}

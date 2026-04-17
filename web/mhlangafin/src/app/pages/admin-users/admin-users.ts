@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { AdminService } from '../../services/admin';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin-users',
@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 })
 export class AdminUsers implements OnInit {
   private adminService = inject(AdminService);
+  private router = inject(Router);
 
   users = signal<any[]>([]);
   isLoading = signal<boolean>(true);
@@ -64,5 +65,13 @@ export class AdminUsers implements OnInit {
         }
       });
     }
+  }
+
+  logout() {
+    // Clear any stored auth tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Navigate to login page
+    this.router.navigate(['/login']);
   }
 }

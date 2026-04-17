@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { AdminService } from '../../services/admin';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin-transactions',
@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 })
 export class AdminTransactions implements OnInit {
   private adminService = inject(AdminService);
+  private router = inject(Router);
 
   transactions = signal<any[]>([]);
   isLoading = signal<boolean>(true);
@@ -71,5 +72,13 @@ export class AdminTransactions implements OnInit {
         alert('Failed to reject transaction');
       }
     });
+  }
+
+  logout() {
+    // Clear any stored auth tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Navigate to login page
+    this.router.navigate(['/login']);
   }
 }

@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { AdminService } from '../../services/admin';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 })
 export class AdminDashboard implements OnInit {
   private adminService = inject(AdminService);
+  private router = inject(Router);
 
   stats = signal<any>(null);
   isLoading = signal<boolean>(true);
@@ -35,5 +36,13 @@ export class AdminDashboard implements OnInit {
         console.error('Error loading stats:', err);
       }
     });
+  }
+
+  logout() {
+    // Clear any stored auth tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Navigate to login page
+    this.router.navigate(['/login']);
   }
 }
