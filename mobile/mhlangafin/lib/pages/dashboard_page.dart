@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file_plus/open_file_plus.dart';
 import '../services/api_service.dart';
 import '../models/account.dart';
 import '../utils/jwt_helper.dart';
@@ -310,19 +313,36 @@ class _DashboardPageState extends State<DashboardPage> {
       });
       
       if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Statement Generated'),
-            content: const Text('Your account statement has been generated successfully.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        // Save and Open PDF
+        try {
+          final directory = await getApplicationDocumentsDirectory();
+          final fileName = 'Statement_${selectedAccountForStatement!.accountNumber}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          final filePath = '${directory.path}/$fileName';
+          final file = File(filePath);
+          await file.writeAsBytes(result as List<int>);
+          
+          await OpenFilePlus.open(filePath);
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Statement saved to $filePath')),
+            );
+          }
+        } catch (e) {
+           showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Error'),
+              content: Text('Failed to save or open the statement: $e'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
       }
     } catch (e) {
       setState(() {

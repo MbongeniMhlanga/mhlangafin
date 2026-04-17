@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import '../services/api_service.dart';
+import '../utils/jwt_helper.dart';
 import 'dashboard_page.dart';
+import 'admin_main_page.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -56,12 +59,28 @@ class _LoginPageState extends State<LoginPage> {
       final token = result['token'] ?? result['accessToken'];
       
       if (token != null) {
+        // Check if user is admin by checking the response role OR decoding JWT
+        bool isAdmin = (result['role']?.toString().toLowerCase() == 'admin' || 
+                        result['Role']?.toString().toLowerCase() == 'admin');
+        
+        if (!isAdmin) {
+          try {
+            final decodedToken = JwtHelper.decode(token);
+            final role = (decodedToken['role'] ?? 
+                        decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+                        decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role'])?.toString().toLowerCase();
+            isAdmin = (role == 'admin');
+          } catch (e) {
+            debugPrint('Error decoding token for role check: $e');
+          }
+        }
+        
         // Show success dialog
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Login Successful'),
-            content: const Text('Welcome back to MhlangaFin!'),
+            content: Text(isAdmin ? 'Welcome back, Admin!' : 'Welcome back to MhlangaFin!'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -69,7 +88,9 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DashboardPage(token: token),
+                      builder: (context) => isAdmin 
+                        ? AdminMainPage(token: token) 
+                        : DashboardPage(token: token),
                     ),
                   );
                 },

@@ -5,6 +5,10 @@ import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/transfer_page.dart';
 import 'pages/digital_card_page.dart';
+import 'pages/admin_dashboard_page.dart';
+import 'pages/admin_users_page.dart';
+import 'pages/admin_transactions_page.dart';
+import 'pages/admin_main_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,6 +96,10 @@ class MhlangaFinApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardPage(),
         '/transfer': (context) => const TransferPage(),
         '/digital-card': (context) => const DigitalCardPage(),
+        '/admin': (context) => const AdminMainPage(),
+        '/admin-dashboard': (context) => const AdminDashboardPage(),
+        '/admin-users': (context) => const AdminUsersPage(),
+        '/admin-transactions': (context) => const AdminTransactionsPage(),
       },
     );
   }
