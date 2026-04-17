@@ -321,7 +321,7 @@ class _DashboardPageState extends State<DashboardPage> {
           final file = File(filePath);
           await file.writeAsBytes(result as List<int>);
           
-          await OpenFilePlus.open(filePath);
+          await OpenFile.open(filePath);
           
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
