@@ -34,32 +34,27 @@ import { CommonModule, DecimalPipe } from '@angular/common';
             <h2 id="modal-title" class="text-3xl font-black text-slate-900 tracking-tight mb-3">Beneficiary Paid</h2>
             <p class="text-slate-500 font-medium mb-10 leading-relaxed">Your transaction has been authorized and processed instantly.</p>
 
-            <!-- Transaction Details Card -->
-            <div class="bg-slate-50 rounded-[2rem] p-8 mb-10 space-y-5 text-left border border-slate-100">
-              <div class="flex justify-between items-center group">
-                <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Transaction ID</span>
-                <span class="text-xs font-black text-slate-900 font-mono tracking-tighter">#{{ transactionId() || '6512-8921-X' }}</span>
-              </div>
-              
-              <div class="flex justify-between items-end">
-                <div>
-                  <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Amount Paid</span>
-                  <span class="text-3xl font-black text-slate-900 tracking-tighter">R{{ amount() | number:'1.2-2' }}</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">To Account</span>
-                  <span class="text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-100">{{ toAccount() }}</span>
-                </div>
-              </div>
+             <!-- Transaction Details Card -->
+             <div class="bg-slate-50 rounded-[2rem] p-8 mb-10 space-y-5 text-left border border-slate-100">
+               <div class="flex justify-between items-end">
+                 <div>
+                   <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Amount Paid</span>
+                   <span class="text-3xl font-black text-slate-900 tracking-tighter">R{{ amount() | number:'1.2-2' }}</span>
+                 </div>
+                 <div class="text-right">
+                   <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">To Account</span>
+                   <span class="text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-100">{{ toAccount() }}</span>
+                 </div>
+               </div>
 
-              <div class="pt-4 border-t border-slate-200/60 flex items-center justify-between">
-                <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Status</span>
-                <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Authorized</span>
-                </div>
-              </div>
-            </div>
+               <div class="pt-4 border-t border-slate-200/60 flex items-center justify-between">
+                 <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Status</span>
+                 <div class="flex items-center gap-2">
+                   <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                   <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Authorized</span>
+                 </div>
+               </div>
+             </div>
 
             <!-- Action Buttons -->
             <div class="space-y-4">
