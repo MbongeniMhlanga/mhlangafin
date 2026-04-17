@@ -1,4 +1,5 @@
 using Backend.DTOs.Accounts;
+using Backend.Models.Constants;
 using Backend.Models.Entities;
 using Backend.Repositories;
 using System.Linq;
@@ -17,10 +18,12 @@ public class AccountService : IAccountService
         _users = users;
     }
 
-    public async Task<AccountDto?> GetByIdAsync(int id)
+    public async Task<AccountDto?> GetByIdAsync(int id, int requesterUserId, bool isAdmin)
     {
         var acc = await _accounts.GetByIdAsync(id);
         if (acc is null) return null;
+        if (!isAdmin && acc.UserId != requesterUserId)
+            throw new UnauthorizedAccessException("You are not allowed to view this account.");
         return MapToDto(acc);
     }
 
@@ -30,10 +33,14 @@ public class AccountService : IAccountService
         return accounts.Select(MapToDto);
     }
 
-    public async Task<AccountDto> CreateAsync(AccountCreateDto dto)
+    public async Task<AccountDto> CreateAsync(AccountCreateDto dto, int requesterUserId, bool isAdmin)
     {
-        var user = await _users.GetByIdAsync(dto.UserId) ?? throw new InvalidOperationException("User not found");
-        var existingAccounts = await _accounts.GetByUserIdAsync(dto.UserId);
+        var targetUserId = isAdmin ? dto.UserId : requesterUserId;
+        var user = await _users.GetByIdAsync(targetUserId) ?? throw new InvalidOperationException("User not found");
+        if (!string.Equals(user.Status, UserStatuses.Active, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Blocked users cannot create accounts.");
+
+        var existingAccounts = await _accounts.GetByUserIdAsync(targetUserId);
         bool isFirst = !existingAccounts.Any();
 
         // One account number per user (Main Account only)
@@ -53,13 +60,15 @@ public class AccountService : IAccountService
             Balance = dto.InitialBalance,
             UserId = user.Id,
             IsMain = isFirst,
-            Status = "Active"
+            Status = AccountStatuses.Active
         };
 
         if (!isFirst)
         {
             var mainAcc = existingAccounts.FirstOrDefault(a => a.IsMain);
             if (mainAcc == null) throw new InvalidOperationException("Main account not found");
+            if (!string.Equals(mainAcc.Status, AccountStatuses.Active, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Frozen main accounts cannot fund new pockets.");
             if (mainAcc.Balance < dto.InitialBalance) throw new InvalidOperationException("Insufficient funds in Main account for initial deposit");
 
             mainAcc.Balance -= dto.InitialBalance;

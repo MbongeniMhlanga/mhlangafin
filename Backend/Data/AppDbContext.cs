@@ -28,6 +28,12 @@ public class AppDbContext : DbContext
             .HasForeignKey(b => b.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.AuditLogs)
+            .WithOne()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         modelBuilder.Entity<Account>()
             .HasMany(a => a.SentTransactions)
             .WithOne(t => t.FromAccount!)

@@ -1,0 +1,76 @@
+<div class="admin-transactions">
+  <h1>Review Transactions</h1>
+
+  <div class="actions">
+    <a routerLink="/admin" class="back-button">← Back to Admin Dashboard</a>
+    <div class="filters">
+      <label>Filter by status:</label>
+      <select (change)="onFilterChange($event)" [value]="filterStatus()">
+        <option value="">All</option>
+        <option value="PendingApproval">Pending Approval</option>
+        <option value="Completed">Completed</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+      <button (click)="loadTransactions()" class="refresh-button">Refresh</button>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading transactions...</p>
+  </div>
+
+  <div class="error" *ngIf="error()">
+    <p>{{ error() }}</p>
+    <button (click)="loadTransactions()">Retry</button>
+  </div>
+
+  <div class="transactions-list" *ngIf="!isLoading && !error()">
+    <div class="transaction-card" *ngFor="let transaction of transactions()">
+      <div class="transaction-header">
+        <div class="transaction-info">
+          <h3>Transaction #{{ transaction.id }}</h3>
+          <p class="amount">Amount: ${{ transaction.amount.toFixed(2) }}</p>
+          <p class="type">Type: {{ transaction.type }}</p>
+          <p class="status" [class]="'status-' + transaction.status.toLowerCase()">
+            Status: {{ transaction.status }}
+          </p>
+        </div>
+        <div class="transaction-date">
+          {{ transaction.createdAt | date:'short' }}
+        </div>
+      </div>
+
+      <div class="transaction-details">
+        <div class="detail-row">
+          <span class="label">From:</span>
+          <span>{{ transaction.fromAccountNumber || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">To:</span>
+          <span>{{ transaction.toAccountNumber || 'N/A' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="transaction.senderReference">
+          <span class="label">Sender Reference:</span>
+          <span>{{ transaction.senderReference }}</span>
+        </div>
+        <div class="detail-row" *ngIf="transaction.beneficiaryReference">
+          <span class="label">Beneficiary Reference:</span>
+          <span>{{ transaction.beneficiaryReference }}</span>
+        </div>
+        <div class="detail-row" *ngIf="transaction.note">
+          <span class="label">Note:</span>
+          <span>{{ transaction.note }}</span>
+        </div>
+      </div>
+
+      <div class="transaction-actions" *ngIf="transaction.status === 'PendingApproval'">
+        <button (click)="approveTransaction(transaction)" class="action-button approve">Approve</button>
+        <button (click)="rejectTransaction(transaction)" class="action-button reject">Reject</button>
+      </div>
+    </div>
+
+    <div class="no-transactions" *ngIf="transactions().length === 0">
+      <p>No transactions found.</p>
+    </div>
+  </div>
+</div>

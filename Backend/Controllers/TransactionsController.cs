@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
 using Backend.DTOs.Transactions;
 using Microsoft.AspNetCore.Authorization;
+using Backend.Extensions;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -19,8 +20,11 @@ public class TransactionsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Transfer([FromBody] TransferRequest request)
     {
-        var result = await _tx.TransferAsync(request);
-        if (result.Status == "Success") return Ok(result);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await _tx.TransferAsync(request, userId, User.IsAdmin());
+        if (result.Status == "Success" || result.Status == "PendingApproval") return Ok(result);
         return BadRequest(result);
     }
 
@@ -28,8 +32,11 @@ public class TransactionsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> InternalTransfer([FromBody] InternalTransferRequest request)
     {
-        var result = await _tx.InternalTransferAsync(request);
-        if (result.Status == "Success") return Ok(result);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await _tx.InternalTransferAsync(request, userId, User.IsAdmin());
+        if (result.Status == "Success" || result.Status == "PendingApproval") return Ok(result);
         return BadRequest(result);
     }
 
@@ -37,7 +44,10 @@ public class TransactionsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)
     {
-        var result = await _tx.GetTransactionHistoryAsync(request);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await _tx.GetTransactionHistoryAsync(request, userId, User.IsAdmin());
         return Ok(result);
     }
 
@@ -45,7 +55,10 @@ public class TransactionsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GenerateStatement([FromBody] StatementRequest request)
     {
-        var result = await _tx.GenerateStatementAsync(request);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await _tx.GenerateStatementAsync(request, userId, User.IsAdmin());
         return Ok(result);
     }
 
@@ -55,7 +68,10 @@ public class TransactionsController : ControllerBase
     {
         try
         {
-            var result = await _tx.GenerateStatementAsync(request, format);
+            if (!User.TryGetUserId(out var userId))
+                return Unauthorized();
+
+            var result = await _tx.GenerateStatementAsync(request, userId, User.IsAdmin(), format);
             
             // Generate PDF using QuestPDF
             var pdfBytes = GenerateStatementPDF(result);

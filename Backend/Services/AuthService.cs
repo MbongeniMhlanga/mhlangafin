@@ -1,8 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Backend.Data;
 using Backend.DTOs.Auth;
+using Backend.Models.Constants;
+using Backend.Models.Entities;
 using Backend.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,12 +17,14 @@ public class AuthService : IAuthService
     private readonly IUserRepository _users;
     private readonly IAccountRepository _accounts;
     private readonly IConfiguration _config;
+    private readonly AppDbContext _db;
 
-    public AuthService(IUserRepository users, IAccountRepository accounts, IConfiguration _config)
+    public AuthService(IUserRepository users, IAccountRepository accounts, IConfiguration _config, AppDbContext db)
     {
         _users = users;
         _accounts = accounts;
         this._config = _config;
+        _db = db;
     }
 
     public async Task<LoginResponse?> AuthenticateAsync(LoginRequest request)
@@ -28,6 +34,7 @@ public class AuthService : IAuthService
 
         // Use BCrypt to verify the password against the stored hash
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)) return null;
+        if (!string.Equals(user.Status, UserStatuses.Active, StringComparison.OrdinalIgnoreCase)) return null;
 
         var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key missing"));
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -51,7 +58,10 @@ public class AuthService : IAuthService
         return new LoginResponse
         {
             Token = tokenHandler.WriteToken(token),
-            ExpiresAt = tokenDescriptor.Expires!.Value
+            ExpiresAt = tokenDescriptor.Expires!.Value,
+            UserId = user.Id,
+            Role = user.Role,
+            Status = user.Status
         };
     }
 
@@ -60,35 +70,55 @@ public class AuthService : IAuthService
         var existingUser = await _users.GetByEmailAsync(request.Email);
         if (existingUser is not null) return false;
 
-        var user = new Backend.Models.Entities.User
+        var user = new User
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = "User"
+            Role = UserRoles.Customer,
+            Status = UserStatuses.Active
         };
 
-        await _users.AddAsync(user);
-        await _users.SaveChangesAsync();
-
-        // Automatically create the Main Account for the new user with R1,000,000 balance
-        var expiryDate = DateTime.UtcNow.AddYears(5).ToString("MM/yy");
-        var cvv = Random.Shared.Next(100, 999).ToString();
-
-        var mainAccount = new Backend.Models.Entities.Account
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        try
         {
-            AccountName = "Main Account",
-            AccountNumber = $"MFN{DateTime.UtcNow:yyyyMM}{Random.Shared.Next(10000, 99999)}",
-            Balance = 1000000m,
-            UserId = user.Id,
-            IsMain = true,
-            Status = "Active",
-            ExpiryDate = expiryDate,
-            CVV = cvv
-        };
-        await _accounts.AddAsync(mainAccount);
-        await _accounts.SaveChangesAsync();
+            await _users.AddAsync(user);
+            await _users.SaveChangesAsync();
+
+            // Automatically create the Main Account for the new user with R1,000,000 balance
+            var expiryDate = DateTime.UtcNow.AddYears(5).ToString("MM/yy");
+            var cvv = Random.Shared.Next(100, 999).ToString();
+
+            var mainAccount = new Account
+            {
+                AccountName = "Main Account",
+                AccountNumber = $"MFN{DateTime.UtcNow:yyyyMM}{Random.Shared.Next(10000, 99999)}",
+                Balance = 1000000m,
+                UserId = user.Id,
+                IsMain = true,
+                Status = AccountStatuses.Active,
+                ExpiryDate = expiryDate,
+                CVV = cvv
+            };
+            await _accounts.AddAsync(mainAccount);
+            await _accounts.SaveChangesAsync();
+
+            await _db.AuditLogs.AddAsync(new AuditLog
+            {
+                UserId = user.Id,
+                Action = "UserRegistered",
+                Details = $"User {user.Email} registered successfully.",
+                Timestamp = DateTime.UtcNow
+            });
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
 
         return true;
     }

@@ -1,11 +1,14 @@
 using System.Text;
 using Backend.Data;
+using Backend.Models.Constants;
+using Backend.Models.Entities;
 using Backend.Repositories;
 using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Backend.Middlewares;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +19,7 @@ var configuration = builder.Configuration;
 var conn = configuration.GetConnectionString("DefaultConnection")
            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(conn, ServerVersion.AutoDetect(conn)));
+options.UseSqlServer(conn));
 
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -29,6 +32,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IBeneficiaryService, BeneficiaryService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 // JWT Authentication
 var jwtKey = configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key missing");
@@ -58,23 +62,23 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     // Add JWT support in Swagger
-    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme."
     });
-    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            new OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
             },
@@ -99,9 +103,11 @@ var app = builder.Build();
 // Ensure DB created in dev (use migrations for production)
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<AppDbContext>();
     // Only create database if it doesn't exist (preserves data)
     db.Database.EnsureCreated();
+    await SeedAdminAsync(services, configuration);
 }
 
 app.ConfigureExceptionHandler();
@@ -117,8 +123,46 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
+app.UseMiddleware<UserStatusMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+static async Task SeedAdminAsync(IServiceProvider services, IConfiguration configuration)
+{
+    var email = configuration["AdminSeed:Email"];
+    var password = configuration["AdminSeed:Password"];
+
+    if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        return;
+
+    var firstName = configuration["AdminSeed:FirstName"] ?? "System";
+    var lastName = configuration["AdminSeed:LastName"] ?? "Admin";
+
+    var db = services.GetRequiredService<AppDbContext>();
+    var existingAdmin = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+    if (existingAdmin is null)
+    {
+        await db.Users.AddAsync(new User
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            Role = UserRoles.Admin,
+            Status = UserStatuses.Active
+        });
+    }
+    else
+    {
+        existingAdmin.FirstName = firstName;
+        existingAdmin.LastName = lastName;
+        existingAdmin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
+        existingAdmin.Role = UserRoles.Admin;
+        existingAdmin.Status = UserStatuses.Active;
+    }
+
+    await db.SaveChangesAsync();
+}

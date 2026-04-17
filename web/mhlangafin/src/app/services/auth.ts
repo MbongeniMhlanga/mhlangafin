@@ -43,11 +43,11 @@ export class AuthService {
 
       // Map standard JWT claims to readable keys
       this.user.set({
-        id: payload['nameid'] || payload['sub'],
+        id: payload['nameid'] || payload['sub'] || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
         fullName: payload['unique_name'] || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
         firstName: payload['given_name'] || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
         email: payload['email'] || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
-        role: payload['role'] || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role']
+        role: payload['role'] || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role']
       });
     } catch (e) {
       console.error('Error decoding token', e);
@@ -75,7 +75,10 @@ export class AuthService {
           this.token.set(res.token);
           this.decodeToken();
           this.isAuthenticated.set(true);
-          this.router.navigate(['/dashboard']);
+          // Use response role for immediate redirect, token decoding for persistence
+          const role = res.role;
+          const route = role === 'Admin' ? '/admin' : '/dashboard';
+          this.router.navigate([route]);
         }
       })
     );

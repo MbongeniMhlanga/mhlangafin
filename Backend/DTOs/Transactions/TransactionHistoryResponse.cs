@@ -15,6 +15,8 @@ public class TransactionDto
 {
     public int Id { get; set; }
     public string Type { get; set; } = null!;
+    public string Status { get; set; } = null!;
+    public bool RequiresApproval { get; set; }
     public decimal Amount { get; set; }
     public string? FromAccountNumber { get; set; }
     public string? ToAccountNumber { get; set; }

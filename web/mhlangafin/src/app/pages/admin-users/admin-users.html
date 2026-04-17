@@ -1,0 +1,55 @@
+<div class="admin-users">
+  <h1>Manage Users</h1>
+
+  <div class="actions">
+    <a routerLink="/admin" class="back-button">← Back to Admin Dashboard</a>
+    <button (click)="loadUsers()" class="refresh-button">Refresh</button>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading users...</p>
+  </div>
+
+  <div class="error" *ngIf="error()">
+    <p>{{ error() }}</p>
+    <button (click)="loadUsers()">Retry</button>
+  </div>
+
+  <div class="users-table" *ngIf="!isLoading && !error()">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users()">
+          <td>{{ user.id }}</td>
+          <td>{{ user.firstName }} {{ user.lastName }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="status" [class.active]="user.status === 'Active'" [class.blocked]="user.status === 'Blocked'">
+              {{ user.status }}
+            </span>
+          </td>
+          <td>{{ user.createdAt | date:'short' }}</td>
+          <td class="actions">
+            <button
+              (click)="toggleUserStatus(user)"
+              class="action-button"
+              [class.block]="user.status === 'Active'"
+              [class.unblock]="user.status === 'Blocked'">
+              {{ user.status === 'Active' ? 'Block' : 'Unblock' }}
+            </button>
+            <button (click)="resetPassword(user)" class="action-button reset">Reset Password</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

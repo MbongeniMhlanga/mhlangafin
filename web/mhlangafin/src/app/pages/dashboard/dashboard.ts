@@ -34,6 +34,7 @@ export class Dashboard implements OnInit {
 
   mainAccount = computed(() => this.accounts().find(a => a.isMain));
   subAccounts = computed(() => this.accounts().filter(a => !a.isMain));
+  isAdmin = computed(() => this.authService.user()?.role === 'Admin');
 
   showInternalTransferModal = signal<boolean>(false);
   isInternalTransferLoading = signal<boolean>(false);

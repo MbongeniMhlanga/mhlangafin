@@ -20,6 +20,7 @@ public static class ExceptionHandlerMiddlewareExtensions
                     {
                         InvalidOperationException => StatusCodes.Status400BadRequest,
                         KeyNotFoundException => StatusCodes.Status404NotFound,
+                        UnauthorizedAccessException => StatusCodes.Status403Forbidden,
                         _ => StatusCodes.Status500InternalServerError
                     };
 

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
 using Backend.DTOs.Accounts;
 using Microsoft.AspNetCore.Authorization;
+using Backend.Extensions;
+using Backend.Models.Constants;
 
 namespace Backend.Controllers;
 
@@ -16,7 +18,10 @@ public class AccountsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Get(int id)
     {
-        var acc = await _accounts.GetByIdAsync(id);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var acc = await _accounts.GetByIdAsync(id, userId, User.IsAdmin());
         if (acc is null) return NotFound();
         return Ok(acc);
     }
@@ -25,8 +30,7 @@ public class AccountsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMyAccounts()
     {
-        var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(userIdString, out var userId))
+        if (!User.TryGetUserId(out var userId))
             return Unauthorized();
 
         var accounts = await _accounts.GetByUserIdAsync(userId);
@@ -34,10 +38,13 @@ public class AccountsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = UserRoles.AdminOrCustomer)]
     public async Task<IActionResult> Create([FromBody] AccountCreateDto dto)
     {
-        var created = await _accounts.CreateAsync(dto);
+        if (!User.TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var created = await _accounts.CreateAsync(dto, userId, User.IsAdmin());
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 }

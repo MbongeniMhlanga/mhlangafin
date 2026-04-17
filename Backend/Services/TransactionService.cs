@@ -2,6 +2,7 @@ using Backend.DTOs.Transactions;
 using Backend.Models.Entities;
 using Backend.Repositories;
 using Backend.Data;
+using Backend.Models.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services;
@@ -11,15 +12,17 @@ public class TransactionService : ITransactionService
     private readonly IAccountRepository _accounts;
     private readonly ITransactionRepository _txRepo;
     private readonly AppDbContext _db;
+    private readonly decimal _approvalThreshold;
 
-    public TransactionService(IAccountRepository accounts, ITransactionRepository txRepo, AppDbContext db)
+    public TransactionService(IAccountRepository accounts, ITransactionRepository txRepo, AppDbContext db, IConfiguration configuration)
     {
         _accounts = accounts;
         _txRepo = txRepo;
         _db = db;
+        _approvalThreshold = configuration.GetValue<decimal?>("Transactions:ApprovalThreshold") ?? 50000m;
     }
 
-    public async Task<TransferResponse> TransferAsync(TransferRequest request)
+    public async Task<TransferResponse> TransferAsync(TransferRequest request, int requesterUserId, bool isAdmin)
     {
         if (request.Amount <= 0)
             return new TransferResponse { Status = "Failed", Message = "Invalid amount" };
@@ -31,8 +34,8 @@ public class TransactionService : ITransactionService
         await using var tx = await _db.Database.BeginTransactionAsync();
         try
         {
-            var from = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == request.FromAccountNumber);
-            var to = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == request.ToAccountNumber);
+            var from = await _db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.AccountNumber == request.FromAccountNumber);
+            var to = await _db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.AccountNumber == request.ToAccountNumber);
 
             if (from is null)
                 return new TransferResponse { Status = "Failed", Message = $"Source account '{request.FromAccountNumber}' not found" };
@@ -40,11 +43,14 @@ public class TransactionService : ITransactionService
             if (to is null)
                 return new TransferResponse { Status = "Failed", Message = $"Destination account '{request.ToAccountNumber}' not found" };
 
+            if (!isAdmin && from.UserId != requesterUserId)
+                return new TransferResponse { Status = "Failed", Message = "Unauthorized transfer" };
+
+            if (!IsOperational(from, from.User) || !IsOperational(to, to.User))
+                return new TransferResponse { Status = "Failed", Message = "Frozen or blocked accounts cannot process transfers" };
+
             if (from.Balance < request.Amount)
                 return new TransferResponse { Status = "Failed", Message = "Insufficient funds" };
-
-            from.Balance -= request.Amount;
-            to.Balance += request.Amount;
 
             var txEntity = new Transaction
             {
@@ -52,12 +58,32 @@ public class TransactionService : ITransactionService
                 ToAccountId = to.Id,
                 Amount = request.Amount,
                 Type = "Transfer",
+                Status = request.Amount >= _approvalThreshold ? TransactionStatuses.PendingApproval : TransactionStatuses.Completed,
+                RequiresApproval = request.Amount >= _approvalThreshold,
                 BeneficiaryReference = request.BeneficiaryReference,
                 SenderReference = request.SenderReference,
                 Timestamp = DateTime.UtcNow
             };
 
+            if (txEntity.RequiresApproval)
+            {
+                await _txRepo.AddAsync(txEntity);
+                await WriteAuditLogAsync(requesterUserId, "TransactionQueuedForApproval", $"Transaction from {from.AccountNumber} to {to.AccountNumber} queued for approval.");
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return new TransferResponse
+                {
+                    TransactionId = txEntity.Id,
+                    Status = TransactionStatuses.PendingApproval,
+                    Message = "Transfer queued for admin approval"
+                };
+            }
+
+            from.Balance -= request.Amount;
+            to.Balance += request.Amount;
             await _txRepo.AddAsync(txEntity);
+            await WriteAuditLogAsync(requesterUserId, "TransferCompleted", $"Transaction {txEntity.Type} completed between {from.AccountNumber} and {to.AccountNumber}.");
             await _db.SaveChangesAsync();
 
             await tx.CommitAsync();
@@ -76,7 +102,7 @@ public class TransactionService : ITransactionService
         }
     }
 
-    public async Task<TransferResponse> InternalTransferAsync(InternalTransferRequest request)
+    public async Task<TransferResponse> InternalTransferAsync(InternalTransferRequest request, int requesterUserId, bool isAdmin)
     {
         if (request.Amount <= 0)
             return new TransferResponse { Status = "Failed", Message = "Invalid amount" };
@@ -87,8 +113,8 @@ public class TransactionService : ITransactionService
         await using var tx = await _db.Database.BeginTransactionAsync();
         try
         {
-            var from = await _db.Accounts.FindAsync(request.FromAccountId);
-            var to = await _db.Accounts.FindAsync(request.ToAccountId);
+            var from = await _db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.Id == request.FromAccountId);
+            var to = await _db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.Id == request.ToAccountId);
 
             if (from is null || to is null)
                 return new TransferResponse { Status = "Failed", Message = "Account not found" };
@@ -96,11 +122,14 @@ public class TransactionService : ITransactionService
             if (from.UserId != to.UserId)
                 return new TransferResponse { Status = "Failed", Message = "Unauthorized transfer" };
 
+            if (!isAdmin && from.UserId != requesterUserId)
+                return new TransferResponse { Status = "Failed", Message = "Unauthorized transfer" };
+
+            if (!IsOperational(from, from.User) || !IsOperational(to, to.User))
+                return new TransferResponse { Status = "Failed", Message = "Frozen or blocked accounts cannot process transfers" };
+
             if (from.Balance < request.Amount)
                 return new TransferResponse { Status = "Failed", Message = "Insufficient funds" };
-
-            from.Balance -= request.Amount;
-            to.Balance += request.Amount;
 
             var txEntity = new Transaction
             {
@@ -108,12 +137,32 @@ public class TransactionService : ITransactionService
                 ToAccountId = to.Id,
                 Amount = request.Amount,
                 Type = "Internal Transfer",
+                Status = request.Amount >= _approvalThreshold ? TransactionStatuses.PendingApproval : TransactionStatuses.Completed,
+                RequiresApproval = request.Amount >= _approvalThreshold,
                 SenderReference = $"To {to.AccountName}",
                 BeneficiaryReference = $"From {from.AccountName}",
                 Timestamp = DateTime.UtcNow
             };
 
+            if (txEntity.RequiresApproval)
+            {
+                await _txRepo.AddAsync(txEntity);
+                await WriteAuditLogAsync(requesterUserId, "InternalTransferQueuedForApproval", $"Internal transfer {txEntity.Id} queued for approval.");
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return new TransferResponse
+                {
+                    TransactionId = txEntity.Id,
+                    Status = TransactionStatuses.PendingApproval,
+                    Message = "Funds move queued for admin approval"
+                };
+            }
+
+            from.Balance -= request.Amount;
+            to.Balance += request.Amount;
             await _txRepo.AddAsync(txEntity);
+            await WriteAuditLogAsync(requesterUserId, "InternalTransferCompleted", $"Internal transfer between accounts {from.Id} and {to.Id} completed.");
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
 
@@ -131,7 +180,7 @@ public class TransactionService : ITransactionService
         }
     }
 
-    public async Task<TransactionHistoryResponse> GetTransactionHistoryAsync(TransactionHistoryRequest request)
+    public async Task<TransactionHistoryResponse> GetTransactionHistoryAsync(TransactionHistoryRequest request, int requesterUserId, bool isAdmin)
     {
         Account? account = null;
         if (int.TryParse(request.AccountNumber, out int accId))
@@ -142,6 +191,9 @@ public class TransactionService : ITransactionService
 
         if (account == null)
             return new TransactionHistoryResponse { Transactions = new List<TransactionDto>() };
+
+        if (!isAdmin && account.UserId != requesterUserId)
+            throw new UnauthorizedAccessException("You are not allowed to view these transactions.");
 
         var query = _db.Transactions
             .Where(t => t.FromAccountId == account.Id || t.ToAccountId == account.Id)
@@ -173,7 +225,9 @@ public class TransactionService : ITransactionService
                     : (t.BeneficiaryReference ?? $"{t.Type} - {t.Amount:C}"),
                 BeneficiaryReference = t.BeneficiaryReference,
                 SenderReference = t.SenderReference,
-                Timestamp = t.Timestamp
+                Timestamp = t.Timestamp,
+                Status = t.Status,
+                RequiresApproval = t.RequiresApproval
             })
             .ToListAsync();
 
@@ -187,7 +241,7 @@ public class TransactionService : ITransactionService
         };
     }
 
-    public async Task<StatementResponse> GenerateStatementAsync(StatementRequest request, string format = "PDF")
+    public async Task<StatementResponse> GenerateStatementAsync(StatementRequest request, int requesterUserId, bool isAdmin, string format = "PDF")
     {
         Account? account = null;
         if (int.TryParse(request.AccountNumber, out int accId))
@@ -199,13 +253,18 @@ public class TransactionService : ITransactionService
         if (account == null)
             return new StatementResponse();
 
+        if (!isAdmin && account.UserId != requesterUserId)
+            throw new UnauthorizedAccessException("You are not allowed to generate a statement for this account.");
+
         // Get opening balance (balance at start date)
         var openingBalance = await CalculateBalanceAtDate(account.Id, request.StartDate);
         
         // Get transactions within date range
         var transactions = await _db.Transactions
             .Where(t => (t.FromAccountId == account.Id || t.ToAccountId == account.Id) &&
-                       t.Timestamp >= request.StartDate && t.Timestamp <= request.EndDate)
+                       t.Timestamp >= request.StartDate &&
+                       t.Timestamp <= request.EndDate &&
+                       t.Status == TransactionStatuses.Completed)
             .Include(t => t.FromAccount)
             .Include(t => t.ToAccount)
             .OrderBy(t => t.Timestamp)
@@ -221,7 +280,9 @@ public class TransactionService : ITransactionService
                     : (t.BeneficiaryReference ?? $"{t.Type} - {t.Amount:C}"),
                 BeneficiaryReference = t.BeneficiaryReference,
                 SenderReference = t.SenderReference,
-                Timestamp = t.Timestamp
+                Timestamp = t.Timestamp,
+                Status = t.Status,
+                RequiresApproval = t.RequiresApproval
             })
             .ToListAsync();
 
@@ -259,7 +320,8 @@ public class TransactionService : ITransactionService
         // Get all transactions before the specified date
         var transactions = await _db.Transactions
             .Where(t => (t.FromAccountId == accountId || t.ToAccountId == accountId) &&
-                       t.Timestamp < date)
+                       t.Timestamp < date &&
+                       t.Status == TransactionStatuses.Completed)
             .ToListAsync();
 
         // Calculate balance at that date
@@ -273,5 +335,23 @@ public class TransactionService : ITransactionService
         }
 
         return balance;
+    }
+
+    private async Task WriteAuditLogAsync(int? userId, string action, string details)
+    {
+        await _db.AuditLogs.AddAsync(new AuditLog
+        {
+            UserId = userId,
+            Action = action,
+            Details = details,
+            Timestamp = DateTime.UtcNow
+        });
+    }
+
+    private static bool IsOperational(Account account, User? user)
+    {
+        return string.Equals(account.Status, AccountStatuses.Active, StringComparison.OrdinalIgnoreCase) &&
+               user is not null &&
+               string.Equals(user.Status, UserStatuses.Active, StringComparison.OrdinalIgnoreCase);
     }
 }

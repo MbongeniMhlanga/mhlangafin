@@ -1,0 +1,49 @@
+<div class="admin-dashboard">
+  <h1>Admin Dashboard</h1>
+
+  <div class="stats-grid" *ngIf="stats(); else loading">
+    <div class="stat-card">
+      <h3>Total Users</h3>
+      <p class="stat-number">{{ stats().totalUsers }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Active Users</h3>
+      <p class="stat-number">{{ stats().activeUsers }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Accounts</h3>
+      <p class="stat-number">{{ stats().totalAccounts }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Frozen Accounts</h3>
+      <p class="stat-number">{{ stats().frozenAccounts }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Transactions</h3>
+      <p class="stat-number">{{ stats().totalTransactions }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Transactions</h3>
+      <p class="stat-number">{{ stats().pendingTransactions }}</p>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="loading" *ngIf="isLoading()">
+      <p>Loading admin statistics...</p>
+    </div>
+  </ng-template>
+
+  <div class="error" *ngIf="error()">
+    <p>{{ error() }}</p>
+    <button (click)="loadStats()">Retry</button>
+  </div>
+
+  <div class="admin-actions">
+    <h2>Admin Actions</h2>
+    <div class="action-buttons">
+      <a routerLink="/admin/users" class="action-button">Manage Users</a>
+      <a routerLink="/admin/transactions" class="action-button">Review Transactions</a>
+    </div>
+  </div>
+</div>

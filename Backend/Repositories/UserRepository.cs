@@ -15,6 +15,9 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByIdAsync(int id) =>
         await _db.Users.FindAsync(id);
 
+    public async Task<IEnumerable<User>> GetAllAsync() =>
+        await _db.Users.Include(u => u.Accounts).ToListAsync();
+
     public async Task AddAsync(User user)
     {
         await _db.Users.AddAsync(user);
