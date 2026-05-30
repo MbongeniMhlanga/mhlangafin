@@ -152,7 +152,7 @@
             <h3 class="text-2xl font-black text-slate-900 tracking-tight">Savings Pockets</h3>
             <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest">Growth Enabled</span>
           </div>
-          <button (click)="scrollToForm()" class="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2">
+          <button type="button" routerLink="/pockets/new" class="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2">
             <span>Open New Pocket</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
           </button>
@@ -190,7 +190,7 @@
           }
 
           <!-- New Pocket Placeholder -->
-          <button (click)="scrollToForm()" class="border-2 border-dashed border-slate-200 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center gap-4 hover:border-blue-300 hover:bg-blue-50/30 transition-all group min-h-[220px]">
+          <button type="button" routerLink="/pockets/new" class="border-2 border-dashed border-slate-200 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center gap-4 hover:border-blue-300 hover:bg-blue-50/30 transition-all group min-h-[220px]">
             <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
               <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
             </div>
@@ -203,42 +203,6 @@
       </div>
     </section>
 
-    <!-- Open New Account Section (Restored Labels) -->
-    <section id="openAccountSection"
-      class="bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm overflow-hidden relative">
-      <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50"></div>
-
-      <div class="max-w-xl mx-auto">
-        <div class="text-center mb-10">
-          <h3 class="text-3xl font-black text-slate-900 tracking-tight">Open Savings Pocket</h3>
-          <p class="text-slate-500 mt-2">Grow your wealth with goal-based savings pockets.</p>
-        </div>
-
-        <form [formGroup]="createAccountForm" (ngSubmit)="createAccount()" class="space-y-6">
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Account Name</label>
-            <input type="text" formControlName="accountName" placeholder="e.g. Dream House Fund" class="input-premium">
-          </div>
-
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Initial Deposit</label>
-            <div class="relative">
-              <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">R</span>
-              <input type="number" formControlName="initialBalance" placeholder="0.00" class="input-premium pl-12">
-            </div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest pl-1">Minimum deposit of R100.00
-              recommended</p>
-          </div>
-
-          <button type="submit" [disabled]="createAccountForm.invalid || isLoading()"
-            class="w-full btn-primary py-4 text-base shadow-2xl shadow-slate-900/10 active:scale-95 transition-all disabled:opacity-50">
-            @if (isLoading()) { <div
-              class="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div> }
-            @else { Authorize Pocket }
-          </button>
-        </form>
-      </div>
-    </section>
   </main>
 
   <!-- Modals (Functional & High Z-Index) -->

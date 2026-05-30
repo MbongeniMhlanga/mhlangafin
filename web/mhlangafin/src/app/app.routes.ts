@@ -7,6 +7,7 @@ export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./pages/login/login').then(m => m.Login) },
   { path: 'register', loadComponent: () => import('./pages/register/register').then(m => m.Register) },
   { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard), canActivate: [authGuard] },
+  { path: 'pockets/new', loadComponent: () => import('./pages/open-pocket/open-pocket').then(m => m.OpenPocketPage), canActivate: [authGuard] },
   { path: 'transfer', loadComponent: () => import('./pages/transfer/transfer').then(m => m.Transfer), canActivate: [authGuard] },
   { path: 'digital-card', loadComponent: () => import('./pages/digital-card/digital-card').then(m => m.DigitalCardPage), canActivate: [authGuard] },
   { path: 'admin', loadComponent: () => import('./pages/admin-dashboard/admin-dashboard').then(m => m.AdminDashboard), canActivate: [AdminGuard] },

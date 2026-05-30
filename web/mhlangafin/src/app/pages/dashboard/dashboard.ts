@@ -21,11 +21,6 @@ export class Dashboard implements OnInit {
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
 
-  createAccountForm = this.fb.nonNullable.group({
-    accountName: ['', [Validators.required, Validators.minLength(2)]],
-    initialBalance: [0.01, [Validators.required, Validators.min(0.01)]]
-  });
-
   internalTransferForm = this.fb.nonNullable.group({
     fromAccountId: [0, [Validators.required]],
     toAccountId: [0, [Validators.required]],
@@ -55,33 +50,6 @@ export class Dashboard implements OnInit {
   isStatementLoading = signal<boolean>(false);
   statementError = signal<string | null>(null);
 
-  // Since backend requires UserId for Create Account, we parse the JWT!
-  // It's technically better to read it on the server, but doing it fast here:
-  private getUserIdFromToken(): number {
-    const token = this.authService.token();
-    if (!token) return 0;
-    try {
-      // Decode the JWT payload using base64 decoding (handling URL-safe base64)
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-
-      const payload = JSON.parse(jsonPayload);
-
-      // JWT libraries map ClaimTypes in different ways (.NET typically uses generic 'nameid' or the full schema)
-      const userIdStr = payload['nameid']
-        || payload['sub']
-        || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-
-      return parseInt(userIdStr, 10);
-    } catch (e) {
-      console.error('Token parsing error:', e);
-      return 0;
-    }
-  }
-
   ngOnInit() {
     this.fetchAccounts();
   }
@@ -100,39 +68,8 @@ export class Dashboard implements OnInit {
     });
   }
 
-  createAccount() {
-    if (this.createAccountForm.valid) {
-      const userId = this.getUserIdFromToken();
-      if (!userId) {
-        this.error.set('Could not parse User ID from token.');
-        return;
-      }
-
-      this.api.createAccount({
-        userId: userId,
-        accountName: this.createAccountForm.getRawValue().accountName,
-        initialBalance: this.createAccountForm.getRawValue().initialBalance
-      }).subscribe({
-        next: () => {
-          this.createAccountForm.reset({ accountName: '', initialBalance: 0.01 });
-          this.fetchAccounts(); // refresh list
-        },
-        error: (err) => {
-          this.error.set(err.message || 'Failed to create account.');
-        }
-      });
-    }
-  }
-
   logout() {
     this.authService.logout();
-  }
-
-  scrollToForm() {
-    const element = document.getElementById('openAccountSection');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   }
 
   // Transaction History Methods
