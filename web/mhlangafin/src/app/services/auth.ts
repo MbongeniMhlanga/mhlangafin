@@ -24,6 +24,7 @@ export class AuthService {
 
   constructor() {
     this.decodeToken();
+    this.refreshCurrentUserProfile();
   }
 
   private decodeToken() {
@@ -55,6 +56,24 @@ export class AuthService {
     }
   }
 
+  private refreshCurrentUserProfile() {
+    if (!this.token()) return;
+
+    this.http.get<any>(`${this.apiUrl}/me`).pipe(
+      catchError(() => of(null))
+    ).subscribe((profile) => {
+      if (!profile) return;
+
+      this.user.set({
+        id: profile.userId,
+        fullName: `${profile.firstName} ${profile.lastName}`,
+        firstName: profile.firstName,
+        email: profile.email,
+        role: profile.role
+      });
+    });
+  }
+
   getUserInitialsAndSurname(): string {
     const userData = this.user();
     if (!userData || !userData.fullName) return 'TRANSFER';
@@ -74,6 +93,7 @@ export class AuthService {
           localStorage.setItem('token', res.token);
           this.token.set(res.token);
           this.decodeToken();
+          this.refreshCurrentUserProfile();
           this.isAuthenticated.set(true);
           // Use response role for immediate redirect, token decoding for persistence
           const role = res.role;

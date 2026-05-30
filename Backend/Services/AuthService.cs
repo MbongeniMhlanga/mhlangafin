@@ -122,4 +122,56 @@ public class AuthService : IAuthService
 
         return true;
     }
+
+    public async Task<ProfileResponse?> GetProfileAsync(int userId)
+    {
+        var user = await _users.GetByIdAsync(userId);
+        if (user is null) return null;
+
+        return MapProfile(user);
+    }
+
+    public async Task<ProfileResponse?> UpdateProfileAsync(int userId, UpdateProfileRequest request)
+    {
+        var user = await _users.GetByIdAsync(userId);
+        if (user is null) return null;
+
+        var firstName = request.FirstName.Trim();
+        var lastName = request.LastName.Trim();
+        var email = request.Email.Trim();
+
+        var emailInUse = await _users.GetByEmailAsync(email);
+        if (emailInUse is not null && emailInUse.Id != userId) return null;
+
+        user.FirstName = firstName;
+        user.LastName = lastName;
+        user.Email = email;
+
+        await _users.SaveChangesAsync();
+
+        return MapProfile(user);
+    }
+
+    public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequest request)
+    {
+        var user = await _users.GetByIdAsync(userId);
+        if (user is null) return false;
+
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            return false;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _users.SaveChangesAsync();
+
+        return true;
+    }
+
+    private static ProfileResponse MapProfile(User user) => new()
+    {
+        UserId = user.Id,
+        FirstName = user.FirstName,
+        LastName = user.LastName,
+        Email = user.Email,
+        Role = user.Role
+    };
 }

@@ -16,6 +16,19 @@ export class Api {
     return this.http.get<any[]>(`${this.apiUrl}/Accounts/my`);
   }
 
+  // Profile
+  getMyProfile(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Auth/me`);
+  }
+
+  updateMyProfile(payload: { firstName: string; lastName: string; email: string }): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/Auth/me`, payload);
+  }
+
+  changeMyPassword(payload: { currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/Auth/me/password`, payload);
+  }
+
   createAccount(payload: { userId: number, accountName: string, initialBalance: number }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Accounts`, payload);
   }
