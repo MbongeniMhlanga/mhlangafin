@@ -95,8 +95,10 @@
                 }
               </button>
             </div>
-            @if (getPasswordErrorMessage()) {
-              <p class="px-1 text-xs font-medium text-red-500">{{ getPasswordErrorMessage() }}</p>
+            @if (loginForm.controls.password.touched || loginForm.controls.password.dirty) {
+              @if (loginForm.controls.password.hasError('required')) {
+                <p class="px-1 text-xs font-medium text-red-500">Password is required.</p>
+              }
             }
             <div class="flex justify-end px-1">
               <a href="#" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Forgot Password?</a>
